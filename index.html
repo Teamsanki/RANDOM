@@ -310,16 +310,15 @@
   <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-database.js"></script>
   <script>
-    // Firebase Configuration
     const firebaseConfig = {
-      apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
-    authDomain: "social-bite-skofficial.firebaseapp.com",
-    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
-    projectId: "social-bite-skofficial",
-    storageBucket: "social-bite-skofficial.appspot.com",
-    messagingSenderId: "239722707022",
-    appId: "1:239722707022:web:57d9b173f2163e85be2b1f",
-      measurementId: "G-EJE8L74022"
+      apiKey: "your-api-key",
+      authDomain: "your-project-id.firebaseapp.com",
+      databaseURL: "https://your-project-id.firebaseio.com",
+      projectId: "your-project-id",
+      storageBucket: "your-project-id.appspot.com",
+      messagingSenderId: "your-sender-id",
+      appId: "your-app-id",
+      measurementId: "your-measurement-id"
     };
     firebase.initializeApp(firebaseConfig);
 
@@ -327,7 +326,7 @@
     const database = firebase.database();
     let currentUser = null;
 
-    // Splash Screen Logic
+    // Show Login Page
     document.getElementById('start-chat').addEventListener('click', () => {
       document.getElementById('splash-screen').style.display = 'none';
       document.getElementById('login-page').style.display = 'block';
@@ -404,7 +403,6 @@
         messageElement.classList.add('message');
         messageElement.classList.add(message.senderId === currentUser.uid ? 'sent' : 'received');
 
-        // Reply System
         if (message.replyTo) {
           const reply = document.createElement('div');
           reply.classList.add('reply');
@@ -432,5 +430,6 @@
       }
     });
   </script>
+
 </body>
 </html>
