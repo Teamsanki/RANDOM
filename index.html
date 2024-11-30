@@ -159,6 +159,7 @@
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
       z-index: 999;
+      text-align: center;
     }
 
     #call-popup button {
@@ -178,6 +179,11 @@
     #call-popup button.reject {
       background-color: #f44336;
       color: white;
+    }
+
+    #call-popup .timer {
+      margin-top: 10px;
+      font-size: 18px;
     }
   </style>
 </head>
@@ -221,6 +227,7 @@
     <div id="call-popup">
       <h3>Incoming Call</h3>
       <p>You have an incoming call!</p>
+      <div class="timer" id="popup-timer"></div>
       <button class="accept">Accept Call</button>
       <button class="reject">Reject Call</button>
     </div>
@@ -244,12 +251,15 @@
     };
     firebase.initializeApp(firebaseConfig);
 
-    // Elements
+    const auth = firebase.auth();
+    const database = firebase.database();
+    const storage = firebase.storage();
+
     const authContainer = document.getElementById('auth-container');
     const userListContainer = document.getElementById('user-list-container');
     const callContainer = document.getElementById('call-container');
-    const loginButton = document.getElementById('login-button');
     const registerButton = document.getElementById('register-button');
+    const loginButton = document.getElementById('login-button');
     const logoutButton = document.getElementById('logout-button');
     const acceptCallButton = document.getElementById('accept-call-button');
     const endCallButton = document.getElementById('end-call-button');
@@ -260,10 +270,7 @@
     const callPopup = document.getElementById('call-popup');
     const callPopupAccept = callPopup.querySelector('.accept');
     const callPopupReject = callPopup.querySelector('.reject');
-
-    const auth = firebase.auth();
-    const database = firebase.database();
-    const storage = firebase.storage();
+    const popupTimer = document.getElementById('popup-timer');
 
     // Show user list after login
     auth.onAuthStateChanged(user => {
@@ -354,9 +361,19 @@
 
         // Show call popup for the receiver
         callPopup.style.display = 'block';
+        startPopupTimer();
         callPopupAccept.onclick = () => acceptCall(receiverId);
-        callPopupReject.onclick = () => endCall();
+        callPopupReject.onclick = () => rejectCall(receiverId);
       });
+    }
+
+    // Start Popup Timer (Before call is accepted)
+    function startPopupTimer() {
+      let timer = 0;
+      const timerInterval = setInterval(() => {
+        timer++;
+        popupTimer.textContent = `Call will expire in: ${timer}s`;
+      }, 1000);
     }
 
     // Accept call
@@ -382,11 +399,11 @@
     }
 
     // Reject call
-    function endCall() {
+    function rejectCall(receiverId) {
       callPopup.style.display = 'none';
     }
 
-    // Start Call Timer
+    // Start Call Timer (After call is accepted)
     function startCallTimer() {
       let timer = 0;
       const timerInterval = setInterval(() => {
