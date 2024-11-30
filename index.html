@@ -254,164 +254,170 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-<script>
-  // Initialize Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
-  authDomain: "social-bite-skofficial.firebaseapp.com",
-  databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
-  projectId: "social-bite-skofficial",
-  storageBucket: "social-bite-skofficial.appspot.com",
-  messagingSenderId: "239722707022",
-  appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
-};
-firebase.initializeApp(firebaseConfig);
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
+    authDomain: "social-bite-skofficial.firebaseapp.com",
+    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
+    projectId: "social-bite-skofficial",
+    storageBucket: "social-bite-skofficial.appspot.com",
+    messagingSenderId: "239722707022",
+    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
+    };
+    firebase.initializeApp(firebaseConfig);
 
-// Elements
-const authContainer = document.getElementById('auth-container');
-const userListContainer = document.getElementById('user-list-container');
-const chatContainer = document.getElementById('chat-container');
-const loginButton = document.getElementById('login-button');
-const registerButton = document.getElementById('register-button');
-const logoutButton = document.getElementById('logout-button');
-const backButton = document.getElementById('back-button');
-const sendButton = document.getElementById('send-button');
-const chatInput = document.getElementById('chat-input');
-const userList = document.getElementById('user-list');
-const chatMessages = document.getElementById('chat-messages');
-const chatHeaderName = document.getElementById('chat-header-name');
-const chatHeaderPic = document.getElementById('chat-header-pic');
+    // Elements
+    const authContainer = document.getElementById('auth-container');
+    const userListContainer = document.getElementById('user-list-container');
+    const chatContainer = document.getElementById('chat-container');
+    const loginButton = document.getElementById('login-button');
+    const registerButton = document.getElementById('register-button');
+    const logoutButton = document.getElementById('logout-button');
+    const backButton = document.getElementById('back-button');
+    const userList = document.getElementById('user-list');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-button');
+    const chatHeaderName = document.getElementById('chat-header-name');
+    const chatHeaderPic = document.getElementById('chat-header-pic');
 
-// Firebase auth and database
-const auth = firebase.auth();
-const database = firebase.database();
-const storage = firebase.storage();
+    // Firebase auth and database
+    const auth = firebase.auth();
+    const database = firebase.database();
+    const storage = firebase.storage();
 
-// Register
-registerButton.addEventListener('click', () => {
-  const name = document.getElementById('name').value;
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-  const profilePic = document.getElementById('profile-pic').files[0];
-  
-  auth.createUserWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      const user = userCredential.user;
-      const storageRef = storage.ref('profile_pics/' + user.uid + '.jpg');
-      storageRef.put(profilePic).then(snapshot => {
-        snapshot.ref.getDownloadURL().then(url => {
-          database.ref('users/' + user.uid).set({
-            name: name,
-            email: email,
-            profilePic: url,
-            status: 'online'
-          }).then(() => {
-            authContainer.style.display = 'none';
-            userListContainer.style.display = 'flex';
+    // Register
+    registerButton.addEventListener('click', () => {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const profilePic = document.getElementById('profile-pic').files[0];
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          const storageRef = storage.ref('profile_pics/' + user.uid + '.jpg');
+          storageRef.put(profilePic).then(snapshot => {
+            snapshot.ref.getDownloadURL().then(url => {
+              database.ref('users/' + user.uid).set({
+                name: name,
+                email: email,
+                profilePic: url,
+                status: 'online'
+              }).then(() => {
+                authContainer.style.display = 'none';
+                userListContainer.style.display = 'flex';
+              });
+            });
+          });
+        })
+        .catch(error => {
+          console.error('Error registering: ', error.message);
+        });
+    });
+
+    // Login
+    loginButton.addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      auth.signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          userListContainer.style.display = 'flex';
+          authContainer.style.display = 'none';
+        })
+        .catch(error => {
+          console.error('Error logging in: ', error.message);
+        });
+    });
+
+    // Logout
+    logoutButton.addEventListener('click', () => {
+      auth.signOut().then(() => {
+        authContainer.style.display = 'flex';
+        userListContainer.style.display = 'none';
+        chatContainer.style.display = 'none';
+      });
+    });
+
+    // Show user list
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        database.ref('users').once('value').then(snapshot => {
+          userList.innerHTML = '';
+          snapshot.forEach(childSnapshot => {
+            const userData = childSnapshot.val();
+            if (userData && userData.uid !== user.uid) {
+              const userDiv = document.createElement('div');
+              userDiv.classList.add('user');
+              const userImg = document.createElement('img');
+              userImg.src = userData.profilePic;
+              userDiv.appendChild(userImg);
+              const userName = document.createElement('div');
+              userName.textContent = userData.name;
+              userDiv.appendChild(userName);
+              userDiv.addEventListener('click', () => openChat(childSnapshot.key));
+              userList.appendChild(userDiv);
+            }
           });
         });
+      } else {
+        userListContainer.style.display = 'none';
+        authContainer.style.display = 'flex';
+      }
+    });
+
+    // Open Chat with a user
+    function openChat(userId) {
+      userListContainer.style.display = 'none';
+      chatContainer.style.display = 'flex';
+      const userRef = database.ref('users/' + userId);
+      userRef.once('value').then(snapshot => {
+        const user = snapshot.val();
+        chatHeaderName.textContent = user.name;
+        chatHeaderPic.src = user.profilePic;
       });
-    })
-    .catch(error => {
-      console.error('Error registering: ', error.message);
-    });
-});
 
-// Login
-loginButton.addEventListener('click', () => {
-  const email = document.getElementById('email').value;
-  const password = document.getElementById('password').value;
-
-  auth.signInWithEmailAndPassword(email, password)
-    .then(userCredential => {
-      const user = userCredential.user;
-      userListContainer.style.display = 'flex';
-      authContainer.style.display = 'none';
-    })
-    .catch(error => {
-      console.error('Error logging in: ', error.message);
-    });
-});
-
-// Logout
-logoutButton.addEventListener('click', () => {
-  auth.signOut().then(() => {
-    authContainer.style.display = 'flex';
-    userListContainer.style.display = 'none';
-    chatContainer.style.display = 'none';
-  });
-});
-
-// Show user list
-firebase.auth().onAuthStateChanged(user => {
-  if (user) {
-    database.ref('users').once('value').then(snapshot => {
-      userList.innerHTML = '';
-      snapshot.forEach(childSnapshot => {
-        const userData = childSnapshot.val();
-        if (userData && userData.uid !== user.uid) {
-          const userDiv = document.createElement('div');
-          userDiv.classList.add('user');
-          const userImg = document.createElement('img');
-          userImg.src = userData.profilePic;
-          userDiv.appendChild(userImg);
-          const userName = document.createElement('div');
-          userName.textContent = userData.name;
-          userDiv.appendChild(userName);
-          userDiv.addEventListener('click', () => openChat(childSnapshot.key));
-          userList.appendChild(userDiv);
+      const messagesRef = database.ref('chats/' + auth.currentUser.uid + '/' + userId);
+      messagesRef.on('child_added', snapshot => {
+        const message = snapshot.val();
+        const messageElement = document.createElement('div');
+        if (message.sender === auth.currentUser.displayName || message.sender === 'Anonymous') {
+          messageElement.classList.add('message', 'sender-message');
+        } else {
+          messageElement.classList.add('message', 'receiver-message');
         }
+        messageElement.textContent = `${message.sender}: ${message.text}`;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight; // Auto scroll
       });
-    });
-  } else {
-    userListContainer.style.display = 'none';
-    authContainer.style.display = 'flex';
-  }
-});
-
-// Open Chat with a user
-function openChat(userId) {
-  userListContainer.style.display = 'none';
-  chatContainer.style.display = 'flex';
-  const userRef = database.ref('users/' + userId);
-  userRef.once('value').then(snapshot => {
-    const user = snapshot.val();
-    chatHeaderName.textContent = user.name;
-    chatHeaderPic.src = user.profilePic;
-  });
-
-  const messagesRef = database.ref('chats/' + auth.currentUser.uid + '/' + userId);
-  messagesRef.on('child_added', snapshot => {
-    const message = snapshot.val();
-    const messageElement = document.createElement('div');
-    if (message.sender === auth.currentUser.displayName || message.sender === 'Anonymous') {
-      messageElement.classList.add('message', 'sender-message');
-    } else {
-      messageElement.classList.add('message', 'receiver-message');
     }
-    messageElement.textContent = `${message.sender}: ${message.text}`;
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight; // Auto scroll
-  });
-}
 
-// Send message
-sendButton.addEventListener('click', () => {
-  const messageText = chatInput.value;
-  if (!messageText) return;
+    // Send message
+    sendButton.addEventListener('click', () => {
+      const messageText = chatInput.value;
+      if (!messageText) return;
 
-  const message = {
-    sender: auth.currentUser.displayName || 'Anonymous',
-    text: messageText,
-    timestamp: Date.now()
-  };
+      const message = {
+        sender: auth.currentUser.displayName || 'Anonymous',
+        text: messageText,
+        timestamp: Date.now()
+      };
 
-  const userId = chatHeaderName.textContent;
-  database.ref('chats/' + auth.currentUser.uid + '/' + userId).push(message);
-  database.ref('chats/' + userId + '/' + auth.currentUser.uid).push(message);
+      const userId = chatHeaderName.textContent;
+      database.ref('chats/' + auth.currentUser.uid + '/' + userId).push(message);
+      database.ref('chats/' + userId + '/' + auth.currentUser.uid).push(message);
 
-  chatInput.value = ''; // Clear input after sending
-});
-</script>
+      chatInput.value = ''; // Clear input after sending
+    });
+
+    // Back Button
+    backButton.addEventListener('click', () => {
+      userListContainer.style.display = 'flex';
+      chatContainer.style.display = 'none';
+    });
+  </script>
 </body>
 </html>
