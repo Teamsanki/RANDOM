@@ -7,7 +7,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
-    /* Basic styling (updated) */
+    /* Basic styling */
     body {
       font-family: 'Roboto', sans-serif;
       margin: 0;
@@ -146,6 +146,39 @@
     .call-status.accepted {
       color: #4caf50;
     }
+
+    /* Popup styling */
+    #call-popup {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      z-index: 999;
+    }
+
+    #call-popup button {
+      margin: 10px;
+      padding: 12px 20px;
+      font-size: 16px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+    }
+
+    #call-popup button.accept {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    #call-popup button.reject {
+      background-color: #f44336;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -183,6 +216,14 @@
       <div id="timer"></div>
       <div id="call-status" class="call-status waiting">Waiting for the receiver...</div>
     </div>
+
+    <!-- Call Popup -->
+    <div id="call-popup">
+      <h3>Incoming Call</h3>
+      <p>You have an incoming call!</p>
+      <button class="accept">Accept Call</button>
+      <button class="reject">Reject Call</button>
+    </div>
   </div>
 
   <!-- Firebase SDK -->
@@ -210,39 +251,36 @@
     const loginButton = document.getElementById('login-button');
     const registerButton = document.getElementById('register-button');
     const logoutButton = document.getElementById('logout-button');
-    const endCallButton = document.getElementById('end-call-button');
     const acceptCallButton = document.getElementById('accept-call-button');
-    const userList = document.getElementById('user-list');
+    const endCallButton = document.getElementById('end-call-button');
     const callHeaderName = document.getElementById('call-header-name');
     const callHeaderPic = document.getElementById('call-header-pic');
-    const nameInput = document.getElementById('name');
-    const emailInput = document.getElementById('email');
-    const passwordInput = document.getElementById('password');
-    const profilePicInput = document.getElementById('profile-pic');
     const timerDisplay = document.getElementById('timer');
     const callStatusDisplay = document.getElementById('call-status');
+    const callPopup = document.getElementById('call-popup');
+    const callPopupAccept = callPopup.querySelector('.accept');
+    const callPopupReject = callPopup.querySelector('.reject');
 
-    // Firebase Auth and Database References
     const auth = firebase.auth();
     const database = firebase.database();
     const storage = firebase.storage();
 
-    // Auth state listener
+    // Show user list after login
     auth.onAuthStateChanged(user => {
       if (user) {
         authContainer.style.display = 'none';
         userListContainer.style.display = 'block';
-        loadUserList();
+        displayUsers();
       } else {
         authContainer.style.display = 'block';
         userListContainer.style.display = 'none';
       }
     });
 
-    // Load user list
-    function loadUserList() {
-      const usersRef = database.ref('users');
-      usersRef.once('value', snapshot => {
+    // Show users
+    function displayUsers() {
+      const userList = document.getElementById('user-list');
+      database.ref('users').once('value', snapshot => {
         userList.innerHTML = '';
         snapshot.forEach(childSnapshot => {
           const user = childSnapshot.val();
@@ -260,10 +298,10 @@
 
     // Register user
     registerButton.addEventListener('click', () => {
-      const name = nameInput.value;
-      const email = emailInput.value;
-      const password = passwordInput.value;
-      const profilePic = profilePicInput.files[0];
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const profilePic = document.getElementById('profile-pic').files[0];
       auth.createUserWithEmailAndPassword(email, password)
         .then(async (userCredential) => {
           const user = userCredential.user;
@@ -282,8 +320,8 @@
 
     // Login user
     loginButton.addEventListener('click', () => {
-      const email = emailInput.value;
-      const password = passwordInput.value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
       auth.signInWithEmailAndPassword(email, password)
         .catch(error => console.error(error.message));
     });
@@ -313,11 +351,16 @@
           status: 'waiting'
         };
         database.ref('calls').push(callData);
+
+        // Show call popup for the receiver
+        callPopup.style.display = 'block';
+        callPopupAccept.onclick = () => acceptCall(receiverId);
+        callPopupReject.onclick = () => endCall();
       });
     }
 
     // Accept call
-    acceptCallButton.addEventListener('click', () => {
+    function acceptCall(receiverId) {
       const currentUser = auth.currentUser;
       const callRef = database.ref('calls').orderByChild('receiver').equalTo(currentUser.uid);
       callRef.once('child_added', snapshot => {
@@ -328,12 +371,20 @@
           // Update the call status to 'accepted'
           callRef.child(callId).update({ status: 'accepted' });
 
-          // Show call timer and accept call button
+          // Hide the popup
+          callPopup.style.display = 'none';
+
+          // Show call page
           callStatusDisplay.textContent = 'Call Accepted';
           startCallTimer();
         }
       });
-    });
+    }
+
+    // Reject call
+    function endCall() {
+      callPopup.style.display = 'none';
+    }
 
     // Start Call Timer
     function startCallTimer() {
