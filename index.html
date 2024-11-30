@@ -177,8 +177,8 @@
         <h2 id="call-header-name"></h2>
       </div>
       <div id="call-buttons">
-        <button id="accept-call-button">Accept Call</button>
-        <button id="end-call-button">End Call</button>
+        <button id="accept-call-button" style="display: none;">Accept Call</button>
+        <button id="end-call-button" style="display: none;">End Call</button>
       </div>
       <div id="timer"></div>
       <div id="call-status" class="call-status waiting">Waiting for the receiver...</div>
@@ -303,8 +303,10 @@
         callHeaderPic.src = receiverData.profilePic;
         callContainer.style.display = 'flex';
         userListContainer.style.display = 'none';
+        acceptCallButton.style.display = 'none';
+        callStatusDisplay.textContent = 'Waiting for the receiver...';
 
-        // Update receiver to accept the call
+        // Create a call request entry
         const callData = {
           caller: currentUser.uid,
           receiver: receiverId,
@@ -323,24 +325,31 @@
         const callData = snapshot.val();
 
         if (callData.status === 'waiting') {
+          // Update the call status to 'accepted'
           callRef.child(callId).update({ status: 'accepted' });
 
-          // Start call timer
-          let timer = 0;
-          const timerInterval = setInterval(() => {
-            timer++;
-            timerDisplay.textContent = `Call Duration: ${timer} seconds`;
-          }, 1000);
-
-          // End the call
-          endCallButton.addEventListener('click', () => {
-            clearInterval(timerInterval);
-            callContainer.style.display = 'none';
-            userListContainer.style.display = 'block';
-          });
+          // Show call timer and accept call button
+          callStatusDisplay.textContent = 'Call Accepted';
+          startCallTimer();
         }
       });
     });
+
+    // Start Call Timer
+    function startCallTimer() {
+      let timer = 0;
+      const timerInterval = setInterval(() => {
+        timer++;
+        timerDisplay.textContent = `Call Duration: ${timer} seconds`;
+      }, 1000);
+
+      // End call
+      endCallButton.addEventListener('click', () => {
+        clearInterval(timerInterval);
+        callContainer.style.display = 'none';
+        userListContainer.style.display = 'block';
+      });
+    }
   </script>
 </body>
 </html>
