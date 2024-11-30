@@ -137,6 +137,14 @@
       color: #333;
     }
 
+    .message .name {
+      font-weight: bold;
+    }
+
+    .message .text {
+      font-weight: normal;
+    }
+
     /* Chat Window */
     #chat-page {
       display: none;
@@ -155,6 +163,14 @@
     .message-form {
       display: flex;
       gap: 10px;
+      position: fixed;
+      bottom: 20px;
+      width: calc(100% - 40px);
+      padding: 10px;
+      background-color: white;
+      box-shadow: 0px -4px 8px rgba(0, 0, 0, 0.1);
+      border-radius: 18px;
+      z-index: 10;
     }
 
     .message-input {
@@ -206,12 +222,28 @@
       #messages {
         padding: 10px;
       }
+
+      .message-form {
+        bottom: 10px;
+        padding: 5px;
+      }
     }
 
     @media (min-width: 769px) {
       #chat-page {
         width: 500px;
       }
+    }
+
+    /* Slide-in Effect for Replies */
+    .reply-message {
+      margin-left: 20px;
+      background-color: #d9eaf7;
+      border-left: 5px solid #007bff;
+      padding: 10px;
+      font-style: italic;
+      max-width: 80%;
+      transition: transform 0.3s ease-in-out;
     }
   </style>
 </head>
@@ -258,39 +290,37 @@
 
   <!-- Chat Page -->
   <div id="chat-page" class="page">
-    <h2>Welcome, <span id="user-name"></span>!</h2>
+    <h2>Welcome to SANKI CHAT</h2>
     <div id="chat-window">
       <div id="messages" class="messages"></div>
-      <form id="message-form" class="message-form">
-        <input type="text" id="message-input" class="message-input" placeholder="Type a message..." required>
-        <button type="submit" class="send-button">Send</button>
-      </form>
     </div>
+    <form id="message-form" class="message-form">
+      <input type="text" id="message-input" class="message-input" placeholder="Type a message..." required>
+      <button type="submit" class="send-button">Send</button>
+    </form>
     <button id="logout-button">Logout</button>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js"></script>
 
   <script>
-    // Firebase Config
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
-      authDomain: "social-bite-skofficial.firebaseapp.com",
-      databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
-      projectId: "social-bite-skofficial",
-      storageBucket: "social-bite-skofficial.appspot.com",
-      messagingSenderId: "239722707022",
-      appId: "1:239722707022:web:57d9b173f2163f22f21731"
+    authDomain: "social-bite-skofficial.firebaseapp.com",
+    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
+    projectId: "social-bite-skofficial",
+    storageBucket: "social-bite-skofficial.appspot.com",
+    messagingSenderId: "239722707022",
+    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
     };
-
+    
     firebase.initializeApp(firebaseConfig);
 
     const auth = firebase.auth();
     const database = firebase.database();
-
     let currentUser = null;
 
     // Splash Screen Logic
@@ -369,7 +399,27 @@
         const messageElement = document.createElement('div');
         messageElement.classList.add('message');
         messageElement.classList.add(message.senderId === currentUser.uid ? 'sent' : 'received');
-        messageElement.textContent = message.text;
+        
+        // Display Name and Message
+        const nameElement = document.createElement('div');
+        nameElement.classList.add('name');
+        nameElement.textContent = message.senderName;
+
+        const textElement = document.createElement('div');
+        textElement.classList.add('text');
+        textElement.textContent = message.text;
+
+        messageElement.appendChild(nameElement);
+        messageElement.appendChild(textElement);
+
+        // If it's a reply, show the original message
+        if (message.replyTo) {
+          const replyElement = document.createElement('div');
+          replyElement.classList.add('reply-message');
+          replyElement.innerHTML = `<strong>${message.replyTo.name}:</strong> ${message.replyTo.text}`;
+          messageElement.appendChild(replyElement);
+        }
+
         document.getElementById('messages').appendChild(messageElement);
       });
     }
@@ -382,7 +432,9 @@
         const newMessageRef = database.ref('messages/').push();
         newMessageRef.set({
           senderId: currentUser.uid,
-          text: text
+          senderName: currentUser.displayName || currentUser.email,
+          text: text,
+          replyTo: null
         });
         document.getElementById('message-input').value = '';
       }
