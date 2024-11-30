@@ -17,7 +17,6 @@
       align-items: center;
       height: 100vh;
       overflow: hidden;
-      flex-direction: column;
     }
 
     h1, h2, h3 {
@@ -46,11 +45,10 @@
       color: white;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 100%;
     }
 
     #splash-screen h1 {
-      font-size: 2.5em;
+      font-size: 3em;
       margin-bottom: 10px;
     }
 
@@ -64,10 +62,10 @@
       background: white;
       padding: 20px;
       width: 100%;
-      max-width: 380px;
+      max-width: 400px;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      margin-top: 20px;
+      margin: 20px;
     }
 
     .page.active {
@@ -94,7 +92,7 @@
 
     button {
       width: 100%;
-      padding: 12px;
+      padding: 10px;
       background-color: #007bff;
       color: white;
       border: none;
@@ -113,7 +111,7 @@
       padding: 10px;
       background-color: #f7f7f7;
       border-radius: 10px;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
       box-sizing: border-box;
       display: flex;
       flex-direction: column;
@@ -140,17 +138,22 @@
       color: #333;
     }
 
+    .message .sender {
+      font-weight: bold;
+      margin-right: 5px;
+    }
+
     /* Chat Window */
     #chat-page {
       display: none;
       width: 100%;
-      max-width: 380px;
-      padding: 20px;
+      max-width: 500px;
+      padding: 30px;
       background-color: #fff;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       position: relative;
-      margin-top: 20px;
+      margin-bottom: 70px; /* Ensure space for message input */
     }
 
     #chat-window {
@@ -161,19 +164,19 @@
       display: flex;
       gap: 10px;
       position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      max-width: 380px;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 480px;
+      z-index: 10;
       padding: 10px;
       box-sizing: border-box;
-      background-color: white;
-      z-index: 10;
     }
 
     .message-input {
-      width: 85%;
-      padding: 10px;
+      width: 80%;
+      padding: 12px;
       border-radius: 18px;
       border: 1px solid #ddd;
       font-size: 1em;
@@ -186,7 +189,7 @@
 
     .send-button {
       width: 15%;
-      padding: 10px;
+      padding: 12px;
       background-color: #007bff;
       color: white;
       border: none;
@@ -201,29 +204,33 @@
     /* Mobile and Desktop Responsiveness */
     @media (max-width: 768px) {
       body {
-        padding: 20px;
+        padding: 0;
       }
 
       .page {
+        width: 100%;
+        padding: 20px;
+      }
+
+      #chat-page {
+        padding-bottom: 70px; /* space for message input */
+      }
+
+      .send-button {
+        width: 25%;
+      }
+
+      .message-form {
+        position: fixed;
+        bottom: 0;
+        left: 0;
         width: 100%;
         max-width: 100%;
         padding: 10px;
       }
 
-      #splash-screen h1 {
-        font-size: 2.2em;
-      }
-
-      #splash-screen p {
-        font-size: 1.1em;
-      }
-
-      #messages {
-        padding: 10px;
-      }
-
-      .send-button {
-        width: 20%;
+      .message-input {
+        width: 75%;
       }
     }
 
@@ -307,7 +314,7 @@
   <script>
     // Firebase Config and Initialization
     const firebaseConfig = {
-     apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
+      apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
     authDomain: "social-bite-skofficial.firebaseapp.com",
     databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
     projectId: "social-bite-skofficial",
@@ -316,6 +323,7 @@
     appId: "1:239722707022:web:57d9b173f2163e85be2b1f",
       measurementId: "G-12345ABCDE"
     };
+
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
@@ -398,7 +406,10 @@
         const messageElement = document.createElement('div');
         messageElement.classList.add('message');
         messageElement.classList.add(message.senderId === currentUser.uid ? 'sent' : 'received');
-        messageElement.textContent = message.text;
+        
+        const senderName = message.senderId === currentUser.uid ? "You" : message.senderName;
+        messageElement.innerHTML = `<span class="sender">${senderName}:</span> ${message.text}`;
+        
         document.getElementById('messages').appendChild(messageElement);
       });
     }
@@ -411,12 +422,12 @@
         const newMessageRef = database.ref('messages/').push();
         newMessageRef.set({
           senderId: currentUser.uid,
+          senderName: currentUser.displayName || currentUser.email,
           text: text
         });
         document.getElementById('message-input').value = '';
       }
     });
   </script>
-
 </body>
 </html>
