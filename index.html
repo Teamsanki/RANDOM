@@ -19,15 +19,13 @@
       height: 100vh;
     }
 
-    h2 {
+    h2, h3 {
       margin: 0;
       color: #555;
     }
 
-    /* Chat Container */
-    #chat-container {
-      display: flex;
-      flex-direction: column;
+    /* Main Container */
+    #main-container {
       width: 100%;
       max-width: 400px;
       height: 90vh;
@@ -37,7 +35,48 @@
       overflow: hidden;
     }
 
-    /* Header */
+    /* Login/Registration Container */
+    #auth-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      padding: 20px;
+    }
+
+    #auth-container input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+
+    #auth-container button {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    #auth-container button:hover {
+      background-color: #0056b3;
+    }
+
+    /* Chat Container */
+    #chat-container {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Chat Header */
     #chat-header {
       background-color: #007bff;
       color: white;
@@ -137,23 +176,32 @@
   </style>
 </head>
 <body>
-  <!-- Chat UI -->
-  <div id="chat-container">
-    <!-- Header -->
-    <div id="chat-header">
-      <h2>SANKI CHAT</h2>
-      <div id="user-name">Welcome, <span>Guest</span></div>
+  <!-- Main Container -->
+  <div id="main-container">
+    <!-- Login/Registration -->
+    <div id="auth-container">
+      <h3>Login / Register</h3>
+      <input type="email" id="email" placeholder="Email" required />
+      <input type="password" id="password" placeholder="Password" required />
+      <button id="login-button">Login</button>
+      <button id="register-button">Register</button>
     </div>
 
-    <!-- Chat Messages -->
-    <div id="chat-messages"></div>
+    <!-- Chat UI -->
+    <div id="chat-container">
+      <div id="chat-header">
+        <h2>SANKI CHAT</h2>
+        <button id="logout-button" style="background: none; color: white; border: none; cursor: pointer;">Logout</button>
+      </div>
 
-    <!-- Chat Input -->
-    <div id="chat-input-container">
-      <input type="text" id="chat-input" placeholder="Type a message..." />
-      <button id="send-button" class="send-button">
-        <i class="fas fa-paper-plane"></i>
-      </button>
+      <div id="chat-messages"></div>
+
+      <div id="chat-input-container">
+        <input type="text" id="chat-input" placeholder="Type a message..." />
+        <button id="send-button" class="send-button">
+          <i class="fas fa-paper-plane"></i>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -166,51 +214,88 @@
     // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
-      authDomain: "social-bite-skofficial.firebaseapp.com",
-      databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
-      projectId: "social-bite-skofficial",
-      storageBucket: "social-bite-skofficial.appspot.com",
-      messagingSenderId: "239722707022",
-      appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
+    authDomain: "social-bite-skofficial.firebaseapp.com",
+    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
+    projectId: "social-bite-skofficial",
+    storageBucket: "social-bite-skofficial.appspot.com",
+    messagingSenderId: "239722707022",
+    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
     };
 
     // Initialize Firebase
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const database = firebase.database();
 
+    const authContainer = document.getElementById('auth-container');
+    const chatContainer = document.getElementById('chat-container');
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
     const sendButton = document.getElementById('send-button');
-    const userName = document.getElementById('user-name').querySelector('span').textContent;
+    const loginButton = document.getElementById('login-button');
+    const registerButton = document.getElementById('register-button');
+    const logoutButton = document.getElementById('logout-button');
 
-    // Add message to Firebase
+    // Switch to chat after login
+    const switchToChat = () => {
+      authContainer.style.display = 'none';
+      chatContainer.style.display = 'flex';
+      chatMessages.innerHTML = '';
+    };
+
+    // Login User
+    loginButton.addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      auth.signInWithEmailAndPassword(email, password)
+        .then(switchToChat)
+        .catch((err) => alert(err.message));
+    });
+
+    // Register User
+    registerButton.addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(switchToChat)
+        .catch((err) => alert(err.message));
+    });
+
+    // Logout User
+    logoutButton.addEventListener('click', () => {
+      auth.signOut()
+        .then(() => {
+          chatContainer.style.display = 'none';
+          authContainer.style.display = 'flex';
+        });
+    });
+
+    // Send Message
     const sendMessage = () => {
       const messageText = chatInput.value.trim();
       if (messageText === "") return;
 
+      const user = auth.currentUser.email.split('@')[0]; // Show username
       const messageData = {
-        user: userName,
+        user,
         message: messageText,
         timestamp: Date.now(),
       };
 
       database.ref('chats').push(messageData);
-      chatInput.value = "";
+      chatInput.value = '';
     };
 
-    // Add event listener to send button
     sendButton.addEventListener('click', sendMessage);
-
-    // Add event listener for Enter key
     chatInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter') sendMessage();
     });
 
-    // Listen for new messages
+    // Load Messages
     database.ref('chats').on('child_added', (snapshot) => {
       const data = snapshot.val();
       const messageDiv = document.createElement('div');
-      messageDiv.className = `message ${data.user === userName ? 'sent' : 'received'}`;
+      messageDiv.className = `message ${data.user === auth.currentUser.email.split('@')[0] ? 'sent' : 'received'}`;
 
       const nameDiv = document.createElement('div');
       nameDiv.className = 'name';
