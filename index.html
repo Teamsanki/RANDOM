@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Chat App</title>
+  <title>SANKI CHAT</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
+    /* Global Styles */
     body {
       font-family: 'Roboto', sans-serif;
       margin: 0;
@@ -17,125 +19,187 @@
       height: 100vh;
     }
 
-    #chat-container {
-      display: flex;
-      flex-direction: column;
+    h2, h3 {
+      margin: 0;
+      color: #555;
+    }
+
+    /* Main Container */
+    #main-container {
       width: 100%;
-      height: 100%;
       max-width: 400px;
-      background-color: white;
+      height: 90vh;
+      background-color: #ffffff;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       overflow: hidden;
     }
 
-    #chat-header {
-      background-color: #007bff;
-      color: white;
-      padding: 10px;
-      text-align: center;
+    /* Login/Registration Container */
+    #auth-container {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+      padding: 20px;
     }
 
-    #chat-messages {
+    #auth-container input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+
+    #auth-container button {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    #auth-container button:hover {
+      background-color: #0056b3;
+    }
+
+    /* User List */
+    #user-list-container {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+
+    #user-list-header {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #user-list-header h2 {
+      font-size: 1.2em;
+    }
+
+    #user-list {
       flex: 1;
       padding: 10px;
       overflow-y: auto;
       background-color: #f4f7fa;
     }
 
-    .message {
-      max-width: 80%;
-      padding: 10px;
-      margin: 10px;
-      border-radius: 10px;
-      font-size: 1em;
-      line-height: 1.4;
-    }
-
-    .sender-message {
-      background-color: #007bff;
-      color: white;
-      margin-left: auto;
-      text-align: right;
-    }
-
-    .receiver-message {
-      background-color: #f0f0f0;
-      color: #333;
-      margin-right: auto;
-      text-align: left;
-    }
-
-    #chat-input-container {
+    .user {
       display: flex;
+      align-items: center;
       padding: 10px;
       background-color: white;
-      border-top: 1px solid #e0e0e0;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      cursor: pointer;
     }
 
-    #chat-input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ccc;
-      border-radius: 20px;
-      font-size: 1em;
+    .user img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
       margin-right: 10px;
     }
 
-    .send-button {
-      width: 50px;
-      height: 50px;
+    .user:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* Voice Call Container */
+    #call-container {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+    }
+
+    /* Call Header */
+    #call-header {
       background-color: #007bff;
       color: white;
-      border: none;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #call-header img {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
-      cursor: pointer;
+      margin-right: 10px;
     }
 
-    .send-button:hover {
-      background-color: #0056b3;
-    }
-
-    .user-list {
+    #call-buttons {
+      display: flex;
+      justify-content: center;
       margin-top: 20px;
-      padding: 10px;
-      background-color: white;
-      border-radius: 5px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      max-width: 400px;
     }
 
-    .user-list div {
+    #call-buttons button {
+      margin: 0 10px;
       padding: 10px;
+      font-size: 1em;
       cursor: pointer;
-      border-bottom: 1px solid #eee;
-    }
-
-    .user-list div:hover {
-      background-color: #f0f0f0;
     }
 
   </style>
 </head>
 <body>
-  <div id="chat-container">
-    <div id="chat-header">Chat</div>
-    <div id="chat-messages"></div>
-    <div id="chat-input-container">
-      <input type="text" id="chat-input" placeholder="Type a message..." />
-      <button id="send-button" class="send-button">
-        &#9658;
-      </button>
+  <div id="main-container">
+    <!-- Authentication -->
+    <div id="auth-container">
+      <h3>Login / Register</h3>
+      <input type="text" id="name" placeholder="Full Name (Register Only)" />
+      <input type="email" id="email" placeholder="Email" />
+      <input type="password" id="password" placeholder="Password" />
+      <input type="file" id="profile-pic" accept="image/*" />
+      <button id="login-button">Login</button>
+      <button id="register-button">Register</button>
+    </div>
+
+    <!-- User List -->
+    <div id="user-list-container">
+      <div id="user-list-header">
+        <h2>User List</h2>
+        <button id="logout-button">Logout</button>
+      </div>
+      <div id="user-list"></div>
+    </div>
+
+    <!-- Voice Call -->
+    <div id="call-container">
+      <div id="call-header">
+        <img src="" alt="Profile Picture" id="call-header-pic" />
+        <h2 id="call-header-name"></h2>
+      </div>
+      <div id="call-buttons">
+        <button id="end-call-button">End Call</button>
+        <button id="accept-call-button">Accept Call</button>
+      </div>
     </div>
   </div>
 
-  <div id="user-list" class="user-list"></div>
-
+  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
   <script>
-    // Firebase Config
+    // Initialize Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
       authDomain: "social-bite-skofficial.firebaseapp.com",
@@ -143,114 +207,146 @@
       projectId: "social-bite-skofficial",
       storageBucket: "social-bite-skofficial.appspot.com",
       messagingSenderId: "239722707022",
-      appId: "1:239722707022:web:5b4ab90b818ea7b345ed2d",
+      appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
     };
-
     firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const database = firebase.database();
 
     // Elements
-    const chatMessages = document.getElementById('chat-messages');
-    const chatInput = document.getElementById('chat-input');
-    const sendButton = document.getElementById('send-button');
-    const chatHeader = document.getElementById('chat-header');
+    const authContainer = document.getElementById('auth-container');
+    const userListContainer = document.getElementById('user-list-container');
+    const callContainer = document.getElementById('call-container');
+    const loginButton = document.getElementById('login-button');
+    const registerButton = document.getElementById('register-button');
+    const logoutButton = document.getElementById('logout-button');
+    const endCallButton = document.getElementById('end-call-button');
+    const acceptCallButton = document.getElementById('accept-call-button');
     const userList = document.getElementById('user-list');
+    const callHeaderName = document.getElementById('call-header-name');
+    const callHeaderPic = document.getElementById('call-header-pic');
+    const nameInput = document.getElementById('name');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const profilePicInput = document.getElementById('profile-pic');
 
-    let currentUserId = null;
-    let chatWithUserId = null;
+    // Firebase Auth and Database References
+    const auth = firebase.auth();
+    const database = firebase.database();
+    const storage = firebase.storage();
 
-    // Sign-in method
+    // Auth state listener
     auth.onAuthStateChanged(user => {
       if (user) {
-        currentUserId = user.uid;
-        loadUserChatList();
+        authContainer.style.display = 'none';
+        userListContainer.style.display = 'block';
+        loadUserList();
       } else {
-        console.log("User not authenticated.");
+        authContainer.style.display = 'block';
+        userListContainer.style.display = 'none';
       }
     });
 
-    // Send message
-    sendButton.addEventListener('click', () => {
-      const messageText = chatInput.value.trim();
-      if (messageText === "") return;
+    // Load user list
+    function loadUserList() {
+      const usersRef = database.ref('users');
+      usersRef.once('value', snapshot => {
+        userList.innerHTML = '';
+        snapshot.forEach(childSnapshot => {
+          const userData = childSnapshot.val();
+          const userElement = document.createElement('div');
+          userElement.className = 'user';
+          userElement.innerHTML = `
+            <img src="${userData.profilePic}" alt="${userData.name}">
+            <div>${userData.name}</div>
+            <button onclick="startVoiceCall('${childSnapshot.key}')">Start Call</button>
+          `;
+          userList.appendChild(userElement);
+        });
+      });
+    }
 
-      const message = {
-        sender: currentUserId,
-        text: messageText,
-        timestamp: Date.now(),
-      };
+    // Register User
+    registerButton.addEventListener('click', () => {
+      const name = nameInput.value;
+      const email = emailInput.value;
+      const password = passwordInput.value;
+      const profilePic = profilePicInput.files[0];
 
-      // Save message in Firebase under both user chats
-      database.ref(`chats/${currentUserId}/${chatWithUserId}`).push(message);
-      database.ref(`chats/${chatWithUserId}/${currentUserId}`).push(message);
+      auth.createUserWithEmailAndPassword(email, password)
+        .then(async (userCredential) => {
+          const user = userCredential.user;
+          const storageRef = storage.ref().child(`profile_pics/${user.uid}`);
+          await storageRef.put(profilePic);
+          const profilePicURL = await storageRef.getDownloadURL();
 
-      chatInput.value = "";
+          const usersRef = database.ref('users');
+          usersRef.child(user.uid).set({
+            name,
+            email,
+            profilePic: profilePicURL
+          });
+        })
+        .catch((error) => {
+          console.error(error.message);
+        });
     });
 
-    // Listen for new messages
-    function listenForMessages() {
-      database.ref(`chats/${currentUserId}/${chatWithUserId}`).on('child_added', snapshot => {
-        const message = snapshot.val();
-        displayMessage(message, message.sender === currentUserId);
-      });
-    }
+    // Login User
+    loginButton.addEventListener('click', () => {
+      const email = emailInput.value;
+      const password = passwordInput.value;
 
-    // Display message in chat window
-    function displayMessage(message, isSender) {
-      const messageElement = document.createElement('div');
-      messageElement.classList.add('message');
-      messageElement.classList.add(isSender ? 'sender-message' : 'receiver-message');
-      messageElement.textContent = message.text;
-      chatMessages.appendChild(messageElement);
-      chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
-    }
-
-    // Load the chat with a selected user
-    function loadChatWithUser(userId, userName) {
-      chatWithUserId = userId;
-      chatHeader.textContent = `Chat with ${userName}`;
-      listenForMessages();
-    }
-
-    // Load the user list from Firebase
-    function loadUserChatList() {
-      database.ref('users').on('child_added', snapshot => {
-        const user = snapshot.val();
-        if (user.uid !== currentUserId) {
-          const userElement = document.createElement('div');
-          userElement.textContent = user.name;
-          userElement.addEventListener('click', () => loadChatWithUser(user.uid, user.name));
-          userList.appendChild(userElement);
-        }
-      });
-    }
-
-    // Register user (simplified for this example)
-    function registerUser(name, email, password) {
-      auth.createUserWithEmailAndPassword(email, password).then(userCredential => {
-        const user = userCredential.user;
-        database.ref('users/' + user.uid).set({
-          name: name,
-          email: email,
+      auth.signInWithEmailAndPassword(email, password)
+        .catch((error) => {
+          console.error(error.message);
         });
-      }).catch(error => {
-        console.log(error.message);
-      });
-    }
+    });
 
-    // Login user
-    function loginUser(email, password) {
-      auth.signInWithEmailAndPassword(email, password).catch(error => {
-        console.log(error.message);
-      });
-    }
-
-    // Logout user
-    function logoutUser() {
+    // Logout
+    logoutButton.addEventListener('click', () => {
       auth.signOut();
+    });
+
+    // Start Voice Call
+    function startVoiceCall(receiverId) {
+      const currentUser = auth.currentUser;
+      const receiverRef = database.ref(`users/${receiverId}`);
+      receiverRef.once('value').then(snapshot => {
+        const receiverData = snapshot.val();
+
+        // Update UI
+        callHeaderName.textContent = receiverData.name;
+        callHeaderPic.src = receiverData.profilePic;
+        callContainer.style.display = 'flex';
+        userListContainer.style.display = 'none';
+
+        // Send email notification (via Firebase Functions)
+        sendCallNotification(receiverData.email);
+      });
     }
 
+    // Send Call Notification Email (using Firebase Cloud Functions)
+    function sendCallNotification(receiverEmail) {
+      const callNotification = {
+        to: receiverEmail,
+        subject: 'Voice Call Incoming!',
+        text: 'You have an incoming voice call. Please answer the call.',
+      };
+
+      // Use Firebase Functions to trigger email send
+      // Here, you'll call your Firebase function to send an email
+    }
+
+    // End Call
+    endCallButton.addEventListener('click', () => {
+      callContainer.style.display = 'none';
+      userListContainer.style.display = 'block';
+    });
+
+    // Accept Call (Placeholder)
+    acceptCallButton.addEventListener('click', () => {
+      alert('Call Accepted');
+      // Integrate WebRTC or other communication libraries to handle the call
+    });
   </script>
 </body>
 </html>
