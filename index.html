@@ -7,7 +7,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
-    /* Global Styles */
     body {
       font-family: 'Roboto', sans-serif;
       margin: 0;
@@ -24,7 +23,6 @@
       color: #555;
     }
 
-    /* Main Container */
     #main-container {
       width: 100%;
       max-width: 400px;
@@ -35,7 +33,6 @@
       overflow: hidden;
     }
 
-    /* Login/Registration Container */
     #auth-container {
       display: flex;
       flex-direction: column;
@@ -68,7 +65,6 @@
       background-color: #0056b3;
     }
 
-    /* User List */
     #user-list-container {
       display: none;
       flex-direction: column;
@@ -117,7 +113,6 @@
       background-color: #f0f0f0;
     }
 
-    /* Voice Call Container */
     #call-container {
       display: none;
       flex-direction: column;
@@ -126,7 +121,6 @@
       background-color: #ffffff;
     }
 
-    /* Call Header */
     #call-header {
       background-color: #007bff;
       color: white;
@@ -154,6 +148,12 @@
       padding: 10px;
       font-size: 1em;
       cursor: pointer;
+    }
+
+    #timer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 1.5em;
     }
 
   </style>
@@ -187,9 +187,10 @@
         <h2 id="call-header-name"></h2>
       </div>
       <div id="call-buttons">
-        <button id="end-call-button">End Call</button>
         <button id="accept-call-button">Accept Call</button>
+        <button id="end-call-button">End Call</button>
       </div>
+      <div id="timer"></div>
     </div>
   </div>
 
@@ -227,6 +228,7 @@
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
     const profilePicInput = document.getElementById('profile-pic');
+    const timerDisplay = document.getElementById('timer');
 
     // Firebase Auth and Database References
     const auth = firebase.auth();
@@ -264,7 +266,7 @@
       });
     }
 
-    // Register User
+    // Register user
     registerButton.addEventListener('click', () => {
       const name = nameInput.value;
       const email = emailInput.value;
@@ -285,67 +287,52 @@
             profilePic: profilePicURL
           });
         })
-        .catch((error) => {
-          console.error(error.message);
-        });
+        .catch(error => console.error(error.message));
     });
 
-    // Login User
+    // Login user
     loginButton.addEventListener('click', () => {
       const email = emailInput.value;
       const password = passwordInput.value;
 
       auth.signInWithEmailAndPassword(email, password)
-        .catch((error) => {
-          console.error(error.message);
-        });
+        .catch(error => console.error(error.message));
     });
 
-    // Logout
+    // Logout user
     logoutButton.addEventListener('click', () => {
       auth.signOut();
     });
 
-    // Start Voice Call
+    // Start voice call
     function startVoiceCall(receiverId) {
       const currentUser = auth.currentUser;
       const receiverRef = database.ref(`users/${receiverId}`);
       receiverRef.once('value').then(snapshot => {
         const receiverData = snapshot.val();
-
-        // Update UI
         callHeaderName.textContent = receiverData.name;
         callHeaderPic.src = receiverData.profilePic;
         callContainer.style.display = 'flex';
         userListContainer.style.display = 'none';
 
-        // Send email notification (via Firebase Functions)
-        sendCallNotification(receiverData.email);
+        // Send call notification (you can implement this later with Firebase Cloud Functions)
       });
     }
 
-    // Send Call Notification Email (using Firebase Cloud Functions)
-    function sendCallNotification(receiverEmail) {
-      const callNotification = {
-        to: receiverEmail,
-        subject: 'Voice Call Incoming!',
-        text: 'You have an incoming voice call. Please answer the call.',
-      };
-
-      // Use Firebase Functions to trigger email send
-      // Here, you'll call your Firebase function to send an email
-    }
-
-    // End Call
-    endCallButton.addEventListener('click', () => {
-      callContainer.style.display = 'none';
-      userListContainer.style.display = 'block';
-    });
-
-    // Accept Call (Placeholder)
+    // Accept call
     acceptCallButton.addEventListener('click', () => {
-      alert('Call Accepted');
-      // Integrate WebRTC or other communication libraries to handle the call
+      let timer = 0;
+      const timerInterval = setInterval(() => {
+        timer++;
+        timerDisplay.textContent = `Call Duration: ${timer} seconds`;
+      }, 1000);
+
+      // Stop timer and handle call ending
+      endCallButton.addEventListener('click', () => {
+        clearInterval(timerInterval);
+        callContainer.style.display = 'none';
+        userListContainer.style.display = 'block';
+      });
     });
   </script>
 </body>
