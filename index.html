@@ -12,28 +12,29 @@
       font-family: 'Roboto', sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f1f1f1;
+      background-color: #f5f7fb;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
-      color: #333;
+      overflow: hidden;
     }
 
     h2, h3 {
       margin: 0;
-      color: #333;
+      color: #444;
     }
 
     /* Main Container */
     #main-container {
       width: 100%;
       max-width: 420px;
-      height: 90vh;
+      height: 95vh;
       background-color: #ffffff;
       border-radius: 12px;
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
       overflow: hidden;
+      transition: all 0.3s ease-in-out;
     }
 
     /* Login/Registration Container */
@@ -43,33 +44,34 @@
       justify-content: center;
       align-items: center;
       height: 100%;
-      padding: 30px;
+      padding: 20px;
     }
 
-    #auth-container input, #auth-container button {
-      width: 100%;
-      padding: 15px;
-      margin: 10px 0;
-      border-radius: 8px;
-      font-size: 1.1em;
-      border: 1px solid #ccc;
-      transition: all 0.3s ease;
-    }
-
-    #auth-container input:focus, #auth-container button:focus {
-      border-color: #007bff;
-      outline: none;
+    #auth-container h3 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #007bff;
     }
 
     #auth-container input {
-      background-color: #f9f9f9;
+      width: 100%;
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 1.1em;
+      box-sizing: border-box;
     }
 
     #auth-container button {
+      padding: 12px 18px;
       background-color: #007bff;
       color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1em;
       cursor: pointer;
-      font-weight: bold;
+      transition: background-color 0.3s ease;
     }
 
     #auth-container button:hover {
@@ -87,42 +89,40 @@
     #user-list-header {
       background-color: #007bff;
       color: white;
-      padding: 12px 20px;
+      padding: 15px 20px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-    }
-
-    #user-list-header h2 {
-      font-size: 1.3em;
+      font-size: 1.2em;
+      font-weight: 600;
     }
 
     #user-list {
       flex: 1;
-      padding: 15px;
+      padding: 20px;
       overflow-y: auto;
-      background-color: #f4f7fa;
+      background-color: #f8f9fa;
     }
 
     .user {
       display: flex;
       align-items: center;
       padding: 12px;
-      background-color: white;
+      background-color: #ffffff;
       margin-bottom: 12px;
       border-radius: 8px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       cursor: pointer;
-      transition: background-color 0.3s;
+      transition: background-color 0.3s ease;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
     }
 
     .user:hover {
-      background-color: #f0f0f0;
+      background-color: #f1f5f9;
     }
 
     .user img {
-      width: 50px;
-      height: 50px;
+      width: 45px;
+      height: 45px;
       border-radius: 50%;
       margin-right: 15px;
       object-fit: cover;
@@ -140,7 +140,7 @@
     #chat-header {
       background-color: #007bff;
       color: white;
-      padding: 15px 20px;
+      padding: 15px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -150,75 +150,68 @@
       width: 45px;
       height: 45px;
       border-radius: 50%;
-      margin-right: 12px;
-      object-fit: cover;
-    }
-
-    #chat-header h2 {
-      font-size: 1.2em;
+      margin-right: 15px;
     }
 
     #chat-messages {
       flex: 1;
-      padding: 15px;
+      padding: 20px;
       overflow-y: auto;
-      background-color: #f4f7fa;
-      border-bottom: 1px solid #e0e0e0;
+      background-color: #f5f7fb;
+      box-sizing: border-box;
     }
 
     /* Chat Input */
     #chat-input-container {
       display: flex;
-      padding: 15px;
+      padding: 12px;
       background-color: #ffffff;
-      border-top: 1px solid #e0e0e0;
+      border-top: 1px solid #ddd;
     }
 
     #chat-input {
       flex: 1;
       padding: 12px;
-      border-radius: 25px;
-      border: 1px solid #ccc;
+      border: 1px solid #ddd;
+      border-radius: 20px;
       font-size: 1.1em;
       margin-right: 12px;
-      transition: border-color 0.3s;
-    }
-
-    #chat-input:focus {
-      border-color: #007bff;
-      outline: none;
+      box-sizing: border-box;
     }
 
     .send-button {
       width: 50px;
       height: 50px;
-      font-size: 1.5em;
+      padding: 0;
+      font-size: 1.4em;
       background-color: #007bff;
       color: white;
+      border: none;
       border-radius: 50%;
       cursor: pointer;
-      border: none;
-      transition: background-color 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: background-color 0.3s ease;
     }
 
     .send-button:hover {
       background-color: #0056b3;
     }
 
-    /* Buttons */
-    .back-button, .logout-button {
-      background-color: transparent;
-      border: none;
+    /* Button to go back */
+    #back-button {
+      font-size: 1.1em;
+      padding: 8px 16px;
+      background-color: #007bff;
       color: white;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 1em;
-      font-weight: bold;
-      padding: 8px;
-      transition: color 0.3s;
+      transition: background-color 0.3s ease;
     }
 
-    .back-button:hover, .logout-button:hover {
-      color: #f1f1f1;
+    #back-button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
@@ -239,7 +232,7 @@
     <div id="user-list-container">
       <div id="user-list-header">
         <h2>User List</h2>
-        <button id="logout-button" class="logout-button">Logout</button>
+        <button id="logout-button">Logout</button>
       </div>
       <div id="user-list"></div>
     </div>
@@ -249,7 +242,7 @@
       <div id="chat-header">
         <img src="" alt="Profile Picture" id="chat-header-pic" />
         <h2 id="chat-header-name"></h2>
-        <button id="back-button" class="back-button">Back</button>
+        <button id="back-button">Back</button>
       </div>
       <div id="chat-messages"></div>
       <div id="chat-input-container">
@@ -266,8 +259,145 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-<script>
-  // Firebase Initialization (same as your existing code)
-</script>
+  <script>
+    // Initialize Firebase
+    const firebaseConfig = {
+      apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
+      authDomain: "social-bite-skofficial.firebaseapp.com",
+      databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
+      projectId: "social-bite-skofficial",
+      storageBucket: "social-bite-skofficial.appspot.com",
+      messagingSenderId: "239722707022",
+      appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    // Elements
+    const authContainer = document.getElementById('auth-container');
+    const userListContainer = document.getElementById('user-list-container');
+    const chatContainer = document.getElementById('chat-container');
+    const loginButton = document.getElementById('login-button');
+    const registerButton = document.getElementById('register-button');
+    const logoutButton = document.getElementById('logout-button');
+    const backButton = document.getElementById('back-button');
+    const sendButton = document.getElementById('send-button');
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const chatHeaderName = document.getElementById('chat-header-name');
+    const chatHeaderPic = document.getElementById('chat-header-pic');
+    const userList = document.getElementById('user-list');
+
+    let currentUserId = null;
+
+    // Firebase Authentication Logic
+    registerButton.addEventListener('click', () => {
+      const name = document.getElementById('name').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const profilePic = document.getElementById('profile-pic').files[0];
+
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          const userId = user.uid;
+          const storageRef = firebase.storage().ref();
+          const profilePicRef = storageRef.child('profile_pics/' + userId + '.jpg');
+
+          if (profilePic) {
+            profilePicRef.put(profilePic).then(() => {
+              profilePicRef.getDownloadURL().then(url => {
+                firebase.database().ref('users/' + userId).set({
+                  name,
+                  email,
+                  profilePic: url
+                }).then(() => {
+                  showUserList();
+                });
+              });
+            });
+          }
+        })
+        .catch((error) => {
+          console.error(error.message);
+        });
+    });
+
+    loginButton.addEventListener('click', () => {
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          currentUserId = userCredential.user.uid;
+          showUserList();
+        })
+        .catch((error) => {
+          console.error(error.message);
+        });
+    });
+
+    logoutButton.addEventListener('click', () => {
+      firebase.auth().signOut().then(() => {
+        authContainer.style.display = 'flex';
+        userListContainer.style.display = 'none';
+        chatContainer.style.display = 'none';
+      });
+    });
+
+    backButton.addEventListener('click', () => {
+      userListContainer.style.display = 'flex';
+      chatContainer.style.display = 'none';
+    });
+
+    // Show User List
+    function showUserList() {
+      authContainer.style.display = 'none';
+      userListContainer.style.display = 'flex';
+
+      firebase.database().ref('users').on('child_added', snapshot => {
+        const user = snapshot.val();
+        const userId = snapshot.key;
+        const userElement = document.createElement('div');
+        userElement.classList.add('user');
+        userElement.innerHTML = `
+          <img src="${user.profilePic}" alt="${user.name}" />
+          <span>${user.name}</span>
+        `;
+
+        userElement.addEventListener('click', () => {
+          showChat(userId, user);
+        });
+
+        userList.appendChild(userElement);
+      });
+    }
+
+    // Show Chat
+    function showChat(userId, user) {
+      userListContainer.style.display = 'none';
+      chatContainer.style.display = 'flex';
+
+      chatHeaderName.textContent = user.name;
+      chatHeaderPic.src = user.profilePic;
+
+      // Fetch and display messages
+      firebase.database().ref('messages/' + currentUserId + '/' + userId).on('child_added', snapshot => {
+        const message = snapshot.val();
+        const messageElement = document.createElement('div');
+        messageElement.textContent = message.text;
+        chatMessages.appendChild(messageElement);
+      });
+
+      sendButton.addEventListener('click', () => {
+        const text = chatInput.value;
+        if (text) {
+          const newMessageRef = firebase.database().ref('messages/' + currentUserId + '/' + userId).push();
+          newMessageRef.set({ text }).then(() => {
+            chatInput.value = '';
+          });
+        }
+      });
+    }
+  </script>
 </body>
 </html>
