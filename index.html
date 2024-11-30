@@ -1,22 +1,232 @@
-.send-button {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 50px;
-  height: 50px;
-  padding: 0;
-  font-size: 1.5em;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SANKI CHAT</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    /* Global Styles */
+    body {
+      font-family: 'Roboto', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f7fa;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
 
-.send-button:hover {
-  background-color: #0056b3;
-}
+    h2 {
+      margin: 0;
+      color: #555;
+    }
 
-.send-button i {
-  margin: 0;
-}
+    /* Chat Container */
+    #chat-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      max-width: 400px;
+      height: 90vh;
+      background-color: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+
+    /* Header */
+    #chat-header {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #chat-header h2 {
+      font-size: 1.2em;
+    }
+
+    /* Chat Messages */
+    #chat-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      background-color: #f4f7fa;
+    }
+
+    .message {
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 15px;
+    }
+
+    .message .name {
+      font-size: 0.8em;
+      color: #007bff;
+      margin-bottom: 3px;
+    }
+
+    .message.sent {
+      align-items: flex-end;
+    }
+
+    .message.received {
+      align-items: flex-start;
+    }
+
+    .message-content {
+      max-width: 70%;
+      padding: 10px;
+      border-radius: 10px;
+      font-size: 0.9em;
+      background-color: #e0e0e0;
+      color: #333;
+      word-wrap: break-word;
+    }
+
+    .message.sent .message-content {
+      background-color: #007bff;
+      color: white;
+    }
+
+    /* Chat Input */
+    #chat-input-container {
+      display: flex;
+      padding: 10px;
+      background-color: #ffffff;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    #chat-input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      font-size: 1em;
+      margin-right: 10px;
+    }
+
+    #chat-input:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+
+    .send-button {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 50px;
+      height: 50px;
+      padding: 0;
+      font-size: 1.5em;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .send-button:hover {
+      background-color: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <!-- Chat UI -->
+  <div id="chat-container">
+    <!-- Header -->
+    <div id="chat-header">
+      <h2>SANKI CHAT</h2>
+      <div id="user-name">Welcome, <span>Guest</span></div>
+    </div>
+
+    <!-- Chat Messages -->
+    <div id="chat-messages"></div>
+
+    <!-- Chat Input -->
+    <div id="chat-input-container">
+      <input type="text" id="chat-input" placeholder="Type a message..." />
+      <button id="send-button" class="send-button">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+  </div>
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+  <script>
+    // Firebase Config
+    const firebaseConfig = {
+      apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
+      authDomain: "social-bite-skofficial.firebaseapp.com",
+      databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
+      projectId: "social-bite-skofficial",
+      storageBucket: "social-bite-skofficial.appspot.com",
+      messagingSenderId: "239722707022",
+      appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
+    const chatMessages = document.getElementById('chat-messages');
+    const chatInput = document.getElementById('chat-input');
+    const sendButton = document.getElementById('send-button');
+    const userName = document.getElementById('user-name').querySelector('span').textContent;
+
+    // Add message to Firebase
+    const sendMessage = () => {
+      const messageText = chatInput.value.trim();
+      if (messageText === "") return;
+
+      const messageData = {
+        user: userName,
+        message: messageText,
+        timestamp: Date.now(),
+      };
+
+      database.ref('chats').push(messageData);
+      chatInput.value = "";
+    };
+
+    // Add event listener to send button
+    sendButton.addEventListener('click', sendMessage);
+
+    // Add event listener for Enter key
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') sendMessage();
+    });
+
+    // Listen for new messages
+    database.ref('chats').on('child_added', (snapshot) => {
+      const data = snapshot.val();
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${data.user === userName ? 'sent' : 'received'}`;
+
+      const nameDiv = document.createElement('div');
+      nameDiv.className = 'name';
+      nameDiv.textContent = data.user;
+
+      const contentDiv = document.createElement('div');
+      contentDiv.className = 'message-content';
+      contentDiv.textContent = data.message;
+
+      messageDiv.appendChild(nameDiv);
+      messageDiv.appendChild(contentDiv);
+      chatMessages.appendChild(messageDiv);
+
+      // Auto-scroll
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    });
+  </script>
+</body>
+</html>
