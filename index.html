@@ -161,7 +161,6 @@
       left: 50%;
       transform: translateX(-50%);
       width: calc(100% - 40px);
-      max-width: 480px;
       z-index: 10;
     }
 
@@ -228,9 +227,32 @@
       .send-button {
         width: 20%;
       }
+
+      /* Mobile Layout */
+      #chat-page {
+        width: 100%;
+        padding-bottom: 70px; /* space for message input */
+      }
+
+      #logout-button {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        padding: 8px 16px;
+        background-color: #ff4c4c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      #logout-button:hover {
+        background-color: #e60000;
+      }
     }
 
     @media (min-width: 769px) {
+      /* Desktop Layout */
       #chat-page {
         width: 500px;
         padding-bottom: 70px; /* space for message input */
@@ -239,23 +261,22 @@
       .send-button {
         width: 10%;
       }
-    }
 
-    /* Logout button styling */
-    #logout-button {
-      position: absolute;
-      top: 10px;
-      right: 20px;
-      padding: 8px 16px;
-      background-color: #ff4c4c;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+      #logout-button {
+        position: absolute;
+        top: 10px;
+        right: 20px;
+        padding: 8px 16px;
+        background-color: #ff4c4c;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
 
-    #logout-button:hover {
-      background-color: #e60000;
+      #logout-button:hover {
+        background-color: #e60000;
+      }
     }
   </style>
 </head>
@@ -307,16 +328,15 @@
       <div id="messages" class="messages"></div>
     </div>
     <div class="message-form">
-      <input type="text" id="message-input" class="message-input" placeholder="Type a message..." required>
-      <button type="submit" class="send-button">Send</button>
+      <input type="text" id="message-input" class="message-input" placeholder="Type a message...">
+      <button id="send-button" class="send-button">Send</button>
     </div>
     <button id="logout-button">Logout</button>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database.js"></script>
 
   <script>
     // Firebase Config and Initialization
@@ -327,7 +347,8 @@
     projectId: "social-bite-skofficial",
     storageBucket: "social-bite-skofficial.appspot.com",
     messagingSenderId: "239722707022",
-    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
+    appId: "1:239722707022:web:57d9b173f2163e85be2b1f",
+      measurementId: "G-12345ABCDE"
     };
 
     firebase.initializeApp(firebaseConfig);
