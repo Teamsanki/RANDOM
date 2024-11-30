@@ -56,15 +56,6 @@
       font-size: 1.2em;
     }
 
-    #progress-bar {
-      width: 0;
-      height: 10px;
-      background-color: white;
-      margin-top: 20px;
-      border-radius: 5px;
-      transition: width 3s;
-    }
-
     /* Login, Register and Chat Pages */
     .page {
       display: none;
@@ -113,6 +104,7 @@
       background-color: #0056b3;
     }
 
+    /* Messages Styles */
     .messages {
       max-height: 400px;
       overflow-y: auto;
@@ -133,7 +125,6 @@
       word-wrap: break-word;
       background-color: #f1f1f1;
       align-self: flex-start;
-      transition: all 0.3s ease-in-out;
     }
 
     .message.sent {
@@ -147,9 +138,17 @@
       color: #333;
     }
 
-    .message.reply {
-      font-style: italic;
-      background-color: #dfe4ea;
+    .reply {
+      padding: 8px;
+      margin: 5px 0;
+      background-color: #d1e7ff;
+      border-radius: 10px;
+      font-size: 0.9em;
+      margin-left: 40px;
+    }
+
+    .reply .username {
+      font-weight: bold;
     }
 
     /* Chat Window */
@@ -161,6 +160,7 @@
       background-color: #fff;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      position: relative;
     }
 
     #chat-window {
@@ -168,22 +168,16 @@
     }
 
     .message-form {
+      position: absolute;
+      bottom: 20px;
+      width: 100%;
       display: flex;
       gap: 10px;
-      position: fixed;
-      bottom: 30px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100%;
-      max-width: 500px;
-      padding: 10px;
-      background-color: #fff;
-      box-shadow: 0px -2px 10px rgba(0,0,0,0.1);
-      border-radius: 10px;
+      padding: 0 10px;
     }
 
     .message-input {
-      width: 85%;
+      width: 90%;
       padding: 12px;
       border-radius: 18px;
       border: 1px solid #ddd;
@@ -209,9 +203,21 @@
       background-color: #0056b3;
     }
 
-    .message-sender {
-      font-weight: bold;
-      color: #007bff;
+    #logout-button {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 10px;
+      background-color: #ff4d4d;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    #logout-button:hover {
+      background-color: #ff1a1a;
     }
 
     /* Mobile and Desktop Responsiveness */
@@ -251,7 +257,7 @@
   <div id="splash-screen">
     <h1>SANKI CHAT</h1>
     <p>Connecting you with the world...</p>
-    <div id="progress-bar"></div>
+    <button id="start-chat">Start Chat</button>
   </div>
 
   <!-- Login Page -->
@@ -289,22 +295,22 @@
 
   <!-- Chat Page -->
   <div id="chat-page" class="page">
-    <h2>Welcome, <span id="user-name"></span>!</h2>
-    <button id="logout-button" style="position: absolute; top: 10px; right: 10px;">Logout</button>
+    <h2>Welcome to SANKI CHAT, <span id="user-name"></span>!</h2>
     <div id="chat-window">
       <div id="messages" class="messages"></div>
+      <form id="message-form" class="message-form">
+        <input type="text" id="message-input" class="message-input" placeholder="Type a message..." required>
+        <button type="submit" class="send-button">Send</button>
+      </form>
     </div>
-    <div class="message-form">
-      <input type="text" id="message-input" class="message-input" placeholder="Type a message..." required>
-      <button type="submit" class="send-button">Send</button>
-    </div>
+    <button id="logout-button">Logout</button>
   </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.12.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.12.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.12.0/firebase-database.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-database.js"></script>
   <script>
+    // Firebase Configuration
     const firebaseConfig = {
       apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
     authDomain: "social-bite-skofficial.firebaseapp.com",
@@ -312,22 +318,20 @@
     projectId: "social-bite-skofficial",
     storageBucket: "social-bite-skofficial.appspot.com",
     messagingSenderId: "239722707022",
-    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
+    appId: "1:239722707022:web:57d9b173f2163e85be2b1f",
+      measurementId: "G-EJE8L74022"
     };
-
     firebase.initializeApp(firebaseConfig);
+
     const auth = firebase.auth();
     const database = firebase.database();
     let currentUser = null;
 
-    // Splash Screen Progress Bar
-    setTimeout(() => {
-      document.getElementById('progress-bar').style.width = '100%';
-      setTimeout(() => {
-        document.getElementById('splash-screen').style.display = 'none';
-        document.getElementById('login-page').style.display = 'block';
-      }, 500);
-    }, 500);
+    // Splash Screen Logic
+    document.getElementById('start-chat').addEventListener('click', () => {
+      document.getElementById('splash-screen').style.display = 'none';
+      document.getElementById('login-page').style.display = 'block';
+    });
 
     // Show Register Form
     document.getElementById('show-register').addEventListener('click', () => {
@@ -399,16 +403,16 @@
         const messageElement = document.createElement('div');
         messageElement.classList.add('message');
         messageElement.classList.add(message.senderId === currentUser.uid ? 'sent' : 'received');
-        messageElement.textContent = message.text;
 
-        // Add reply information if present
+        // Reply System
         if (message.replyTo) {
-          const replyElement = document.createElement('div');
-          replyElement.classList.add('message', 'reply');
-          replyElement.textContent = `Replying to ${message.replyTo.name}: ${message.replyTo.text}`;
-          messageElement.prepend(replyElement);
+          const reply = document.createElement('div');
+          reply.classList.add('reply');
+          reply.innerHTML = `<span class="username">${message.replyTo.senderName}:</span> ${message.replyTo.text}`;
+          messageElement.appendChild(reply);
         }
 
+        messageElement.innerHTML += `<strong>${message.senderName}</strong>: ${message.text}`;
         document.getElementById('messages').appendChild(messageElement);
       });
     }
@@ -421,6 +425,7 @@
         const newMessageRef = database.ref('messages/').push();
         newMessageRef.set({
           senderId: currentUser.uid,
+          senderName: currentUser.displayName || currentUser.email,
           text: text
         });
         document.getElementById('message-input').value = '';
