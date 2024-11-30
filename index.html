@@ -104,7 +104,6 @@
       background-color: #0056b3;
     }
 
-    /* Messages Styles */
     .messages {
       max-height: 400px;
       overflow-y: auto;
@@ -138,19 +137,6 @@
       color: #333;
     }
 
-    .reply {
-      padding: 8px;
-      margin: 5px 0;
-      background-color: #d1e7ff;
-      border-radius: 10px;
-      font-size: 0.9em;
-      margin-left: 40px;
-    }
-
-    .reply .username {
-      font-weight: bold;
-    }
-
     /* Chat Window */
     #chat-page {
       display: none;
@@ -168,12 +154,15 @@
     }
 
     .message-form {
-      position: absolute;
-      bottom: 20px;
-      width: 100%;
       display: flex;
       gap: 10px;
-      padding: 0 10px;
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: calc(100% - 40px);
+      max-width: 480px;
+      z-index: 10;
     }
 
     .message-input {
@@ -203,23 +192,6 @@
       background-color: #0056b3;
     }
 
-    #logout-button {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      padding: 10px;
-      background-color: #ff4d4d;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      font-size: 16px;
-      cursor: pointer;
-    }
-
-    #logout-button:hover {
-      background-color: #ff1a1a;
-    }
-
     /* Mobile and Desktop Responsiveness */
     @media (max-width: 768px) {
       body {
@@ -242,12 +214,48 @@
       #messages {
         padding: 10px;
       }
+
+      .message-form {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        max-width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+      }
+
+      .send-button {
+        width: 20%;
+      }
     }
 
     @media (min-width: 769px) {
       #chat-page {
         width: 500px;
+        padding-bottom: 70px; /* space for message input */
       }
+
+      .send-button {
+        width: 10%;
+      }
+    }
+
+    /* Logout button styling */
+    #logout-button {
+      position: absolute;
+      top: 10px;
+      right: 20px;
+      padding: 8px 16px;
+      background-color: #ff4c4c;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #logout-button:hover {
+      background-color: #e60000;
     }
   </style>
 </head>
@@ -257,7 +265,6 @@
   <div id="splash-screen">
     <h1>SANKI CHAT</h1>
     <p>Connecting you with the world...</p>
-    <button id="start-chat">Start Chat</button>
   </div>
 
   <!-- Login Page -->
@@ -295,42 +302,45 @@
 
   <!-- Chat Page -->
   <div id="chat-page" class="page">
-    <h2>Welcome to SANKI CHAT, <span id="user-name"></span>!</h2>
+    <h2>Welcome to SANKI CHAT chat with random users and make new friends here</h2>
     <div id="chat-window">
       <div id="messages" class="messages"></div>
-      <form id="message-form" class="message-form">
-        <input type="text" id="message-input" class="message-input" placeholder="Type a message..." required>
-        <button type="submit" class="send-button">Send</button>
-      </form>
+    </div>
+    <div class="message-form">
+      <input type="text" id="message-input" class="message-input" placeholder="Type a message..." required>
+      <button type="submit" class="send-button">Send</button>
     </div>
     <button id="logout-button">Logout</button>
   </div>
 
-  <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-database.js"></script>
-  <script>
-    const firebaseConfig = {
-      apiKey: "your-api-key",
-      authDomain: "your-project-id.firebaseapp.com",
-      databaseURL: "https://your-project-id.firebaseio.com",
-      projectId: "your-project-id",
-      storageBucket: "your-project-id.appspot.com",
-      messagingSenderId: "your-sender-id",
-      appId: "your-app-id",
-      measurementId: "your-measurement-id"
-    };
-    firebase.initializeApp(firebaseConfig);
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
+  <script>
+    // Firebase Config and Initialization
+    const firebaseConfig = {
+      apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
+    authDomain: "social-bite-skofficial.firebaseapp.com",
+    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
+    projectId: "social-bite-skofficial",
+    storageBucket: "social-bite-skofficial.appspot.com",
+    messagingSenderId: "239722707022",
+    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
+    };
+
+    firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const database = firebase.database();
+
     let currentUser = null;
 
-    // Show Login Page
-    document.getElementById('start-chat').addEventListener('click', () => {
+    // Splash Screen Logic
+    setTimeout(() => {
       document.getElementById('splash-screen').style.display = 'none';
       document.getElementById('login-page').style.display = 'block';
-    });
+    }, 3000);
 
     // Show Register Form
     document.getElementById('show-register').addEventListener('click', () => {
@@ -402,15 +412,7 @@
         const messageElement = document.createElement('div');
         messageElement.classList.add('message');
         messageElement.classList.add(message.senderId === currentUser.uid ? 'sent' : 'received');
-
-        if (message.replyTo) {
-          const reply = document.createElement('div');
-          reply.classList.add('reply');
-          reply.innerHTML = `<span class="username">${message.replyTo.senderName}:</span> ${message.replyTo.text}`;
-          messageElement.appendChild(reply);
-        }
-
-        messageElement.innerHTML += `<strong>${message.senderName}</strong>: ${message.text}`;
+        messageElement.textContent = message.text;
         document.getElementById('messages').appendChild(messageElement);
       });
     }
@@ -423,13 +425,11 @@
         const newMessageRef = database.ref('messages/').push();
         newMessageRef.set({
           senderId: currentUser.uid,
-          senderName: currentUser.displayName || currentUser.email,
           text: text
         });
         document.getElementById('message-input').value = '';
       }
     });
   </script>
-
 </body>
 </html>
