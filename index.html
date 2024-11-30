@@ -1,310 +1,233 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SANKI CHAT with Stories</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-  <style>
-    /* Global Styles */
-    body {
-      font-family: 'Roboto', sans-serif;
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(135deg, #6e7f80, #1f2328);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      color: #fff;
-    }
-
-    h2, h3 {
-      margin: 0;
-      color: #f4f4f4;
-    }
-
-    /* Main Container */
-    #main-container {
-      width: 100%;
-      max-width: 450px;
-      height: 90vh;
-      background-color: #ffffff;
-      border-radius: 15px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* Story Upload Container */
-    #story-upload-container {
-      padding: 20px;
-      background-color: #f9f9f9;
-    }
-
-    #story-upload-container input[type="file"] {
-      width: 100%;
-      padding: 12px;
-      margin: 12px 0;
-      border: 2px solid #ccc;
-      border-radius: 30px;
-      font-size: 1em;
-      background-color: #fff;
-    }
-
-    #story-upload-container button {
-      padding: 12px 18px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 30px;
-      font-size: 1.1em;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-    }
-
-    #story-upload-container button:hover {
-      background-color: #0056b3;
-    }
-
-    /* Story List Container */
-    #story-list-container {
-      display: flex;
-      flex-direction: column;
-      padding: 20px;
-      background-color: #fff;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-      border-radius: 15px;
-    }
-
-    .story-item {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 15px;
-      background-color: #f0f0f0;
-      border-radius: 12px;
-      margin-bottom: 15px;
-      cursor: pointer;
-      position: relative;
-    }
-
-    .story-item img, .story-item video {
-      width: 100%;
-      max-height: 250px;
-      object-fit: cover;
-      border-radius: 12px;
-    }
-
-    .story-item h3 {
-      margin-top: 10px;
-      font-size: 1.2em;
-    }
-
-    .views-info {
-      margin-top: 10px;
-      font-size: 0.9em;
-      color: #555;
-    }
-
-    /* Story Modal */
-    #story-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.7);
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-
-    #story-modal-content {
-      background-color: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      max-width: 500px;
-      width: 100%;
-      text-align: center;
-    }
-
-    #story-modal-content img, #story-modal-content video {
-      width: 100%;
-      max-height: 350px;
-      object-fit: cover;
-      border-radius: 10px;
-    }
-
-    .story-view-count {
-      margin-top: 15px;
-      font-size: 1em;
-      font-weight: bold;
-    }
-
-    .back-button {
-      margin-top: 20px;
-      padding: 10px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 30px;
-      cursor: pointer;
-    }
-
-    .back-button:hover {
-      background-color: #0056b3;
-    }
-
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Telegram Story Upload with Firebase</title>
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.2/firebase-storage.js"></script>
+    <script async src="https://telegram.org/js/telegram-widget.js?7"
+        data-telegram-login="your_telegram_bot_username"
+        data-size="large" data-radius="10" data-auth-url="/auth"></script>
+    <style>
+        /* Basic Styling */
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+        }
+        .story-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .story {
+            margin: 20px;
+            border: 1px solid #ddd;
+            padding: 10px;
+            width: 300px;
+            position: relative;
+        }
+        .story img, .story video {
+            width: 100%;
+            height: auto;
+        }
+        .caption {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #555;
+        }
+        .viewer-count {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            padding: 5px;
+            border-radius: 50%;
+        }
+        .upload-container {
+            margin: 20px;
+            text-align: center;
+        }
+        /* Progress Bar Popup */
+        #progress-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            align-items: center;
+            justify-content: center;
+        }
+        #progress-popup {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            width: 300px;
+        }
+        #progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #ddd;
+        }
+        #progress {
+            height: 100%;
+            width: 0;
+            background-color: green;
+        }
+    </style>
 </head>
 <body>
-  <div id="main-container">
-    <!-- Story Upload -->
-    <div id="story-upload-container">
-      <h3>Upload Your Story</h3>
-      <input type="file" id="story-upload" accept="image/*,video/*" />
-      <button id="upload-story-button">Upload Story</button>
+
+    <div id="user-info">
+        <h2>Welcome, <span id="username"></span></h2>
+        <img id="profile-photo" alt="Profile Photo" width="50">
     </div>
 
-    <!-- Story List -->
-    <div id="story-list-container">
-      <h3>Stories</h3>
-      <div id="story-list">
-        <!-- Dynamically populated story list will go here -->
-      </div>
+    <div class="upload-container">
+        <h3>Upload Your Story</h3>
+        <input type="file" id="story-file" accept="image/*,video/*">
+        <textarea id="story-caption" placeholder="Enter caption..." rows="3" cols="30"></textarea>
+        <button onclick="uploadStory()">Upload</button>
     </div>
 
-    <!-- Story Modal -->
-    <div id="story-modal">
-      <div id="story-modal-content">
-        <div id="story-content"></div>
-        <div class="story-view-count">Views: <span id="view-count">0</span></div>
-        <div id="viewers-list">
-          <h4>Viewed By:</h4>
-          <ul id="viewers"></ul>
+    <!-- Progress Bar Modal -->
+    <div id="progress-modal">
+        <div id="progress-popup">
+            <h4>Uploading Story...</h4>
+            <div id="progress-bar">
+                <div id="progress"></div>
+            </div>
         </div>
-        <button class="back-button" id="back-button">Back</button>
-      </div>
     </div>
-  </div>
 
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.7.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.7.0/firebase-storage.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.7.0/firebase-database.js"></script>
-  <script>
-    // Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
-    authDomain: "social-bite-skofficial.firebaseapp.com",
-    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
-    projectId: "social-bite-skofficial",
-    storageBucket: "social-bite-skofficial.appspot.com",
-    messagingSenderId: "239722707022",
-    appId: "1:239722707022:web:57d9b173f2163e85be2b1f",
-    };
-    const app = firebase.initializeApp(firebaseConfig);
-    const storage = firebase.storage();
-    const db = firebase.database();
+    <div class="story-container" id="stories">
+        <!-- Stories will be displayed here -->
+    </div>
 
-    // Story Upload
-    const storyUploadButton = document.getElementById('upload-story-button');
-    const storyUploadInput = document.getElementById('story-upload');
+    <script>
+        // Firebase configuration (replace with your own Firebase project config)
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_AUTH_DOMAIN",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_STORAGE_BUCKET",
+            messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
 
-    storyUploadButton.addEventListener('click', () => {
-      const file = storyUploadInput.files[0];
-      if (!file) {
-        alert('Please select a file to upload.');
-        return;
-      }
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
 
-      const storageRef = storage.ref('stories/' + file.name);
-      const uploadTask = storageRef.put(file);
+        // Variables for Telegram User info
+        let telegramUser = { username: "", name: "", profile_photo: "" };
 
-      uploadTask.on('state_changed', (snapshot) => {
-        // Handle upload progress
-      }, (error) => {
-        console.error('Upload failed:', error);
-      }, () => {
-        uploadTask.snapshot.ref.getDownloadURL().then((downloadURL) => {
-          const storyData = {
-            url: downloadURL,
-            type: file.type.includes('video') ? 'video' : 'image',
-            views: 0,
-            viewers: []
-          };
-          db.ref('stories').push(storyData);
-          alert('Story uploaded successfully!');
-        });
-      });
-    });
+        // Callback to handle Telegram Login and fetch user info
+        window.TelegramLoginWidget = function(user) {
+            telegramUser.username = user.username;
+            telegramUser.name = user.first_name + " " + user.last_name;
+            telegramUser.profile_photo = user.photo_url;
 
-    // Fetch and Display Stories
-    db.ref('stories').on('child_added', (snapshot) => {
-      const story = snapshot.val();
-      const storyElement = document.createElement('div');
-      storyElement.classList.add('story-item');
-      storyElement.innerHTML = `
-        ${story.type === 'video' ? `<video src="${story.url}" controls></video>` : `<img src="${story.url}" />`}
-        <h3>Story</h3>
-        <div class="views-info">Views: ${story.views}</div>
-      `;
-      storyElement.addEventListener('click', () => {
-        viewStory(snapshot.key);
-      });
-      document.getElementById('story-list').appendChild(storyElement);
-    });
+            document.getElementById("username").textContent = telegramUser.name;
+            document.getElementById("profile-photo").src = telegramUser.profile_photo;
+        };
 
-    // View Story
-    function viewStory(storyId) {
-      const storyRef = db.ref('stories/' + story
-      const storyRef = db.ref('stories/' + storyId);
-      storyRef.once('value', (snapshot) => {
-        const story = snapshot.val();
+        let stories = [];
 
-        // Update Story Modal with Story Content
-        const storyContent = document.getElementById('story-content');
-        if (story.type === 'video') {
-          storyContent.innerHTML = `<video src="${story.url}" controls></video>`;
-        } else {
-          storyContent.innerHTML = `<img src="${story.url}" />`;
+        // Upload Story function to Firebase with Progress Bar
+        function uploadStory() {
+            const fileInput = document.getElementById("story-file");
+            const caption = document.getElementById("story-caption").value;
+
+            if (!fileInput.files[0] || !caption) {
+                alert("Please select a file and add a caption!");
+                return;
+            }
+
+            const file = fileInput.files[0];
+            const fileName = file.name;
+            const storageRef = storage.ref().child('stories/' + fileName);
+
+            // Show the progress bar modal
+            document.getElementById("progress-modal").style.display = "flex";
+
+            // Upload the file to Firebase Storage
+            const uploadTask = storageRef.put(file);
+
+            uploadTask.on('state_changed', function(snapshot) {
+                // Track progress
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                document.getElementById("progress").style.width = progress + "%";
+            }, function(error) {
+                console.error("Error uploading file:", error);
+            }, function() {
+                // Get the download URL and save to Firestore
+                uploadTask.snapshot.ref.getDownloadURL().then(url => {
+                    // Save story info to Firestore
+                    db.collection("stories").add({
+                        user: telegramUser.name,  // Use name instead of username
+                        photo: url,
+                        caption: caption,
+                        viewers: [telegramUser.username], // Initially, the uploader is the viewer
+                        count: 1,
+                        timestamp: firebase.firestore.FieldValue.serverTimestamp() // To keep track of when the story was uploaded
+                    }).then(() => {
+                        document.getElementById("progress-modal").style.display = "none"; // Hide progress bar
+                        displayStories(); // Refresh the list of stories
+                    }).catch(err => {
+                        console.error("Error saving story:", err);
+                    });
+                });
+            });
         }
 
-        // Show the number of views
-        const viewCount = document.getElementById('view-count');
-        viewCount.innerText = story.views;
+        // Display stories from Firestore
+        function displayStories() {
+            const storiesContainer = document.getElementById("stories");
+            storiesContainer.innerHTML = "";
 
-        // Show the viewers
-        const viewersList = document.getElementById('viewers');
-        viewersList.innerHTML = '';
-        story.viewers.forEach(viewer => {
-          const viewerItem = document.createElement('li');
-          viewerItem.textContent = viewer;
-          viewersList.appendChild(viewerItem);
-        });
+            db.collection("stories").orderBy("timestamp", "desc").get().then(querySnapshot => {
+                querySnapshot.forEach(doc => {
+                    const story = doc.data();
+                    const storyElement = document.createElement("div");
+                    storyElement.classList.add("story");
 
-        // Increment the view count if the user hasn't viewed the story
-        const currentUser = "user_name_here";  // Replace with the logged-in user's name or ID
-        if (!story.viewers.includes(currentUser)) {
-          storyRef.update({
-            views: story.views + 1,
-            viewers: [...story.viewers, currentUser]
-          });
+                    const storyMedia = document.createElement(story.photo.endsWith('.mp4') ? "video" : "img");
+                    storyMedia.src = story.photo;
+                    storyMedia.controls = true;
+                    storyElement.appendChild(storyMedia);
+
+                    const caption = document.createElement("p");
+                    caption.classList.add("caption");
+                    caption.textContent = story.caption;
+                    storyElement.appendChild(caption);
+
+                    const viewerCount = document.createElement("span");
+                    viewerCount.classList.add("viewer-count");
+                    viewerCount.textContent = story.count;
+                    storyElement.appendChild(viewerCount);
+
+                    // Display viewers if user is the uploader
+                    if (story.user === telegramUser.name) {
+                        const viewersList = document.createElement("div");
+                        viewersList.textContent = `Viewers: ${story.viewers.join(", ")}`;
+                        storyElement.appendChild(viewersList);
+                    }
+
+                    storiesContainer.appendChild(storyElement);
+                });
+            }).catch(err => {
+                console.error("Error fetching stories:", err);
+            });
         }
 
-        // Show the story modal
-        document.getElementById('story-modal').style.display = 'flex';
-      });
-    }
-
-    // Close Story Modal
-    document.getElementById('back-button').addEventListener('click', () => {
-      document.getElementById('story-modal').style.display = 'none';
-    });
-  </script>
+        // Initially load stories
+        displayStories();
+    </script>
 </body>
 </html>
