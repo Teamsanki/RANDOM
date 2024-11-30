@@ -3,11 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SANKI CHAT</title>
+  <title>Chat App</title>
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
-    /* Global Styles */
     body {
       font-family: 'Roboto', sans-serif;
       margin: 0;
@@ -19,127 +17,23 @@
       height: 100vh;
     }
 
-    h2, h3 {
-      margin: 0;
-      color: #555;
-    }
-
-    /* Main Container */
-    #main-container {
+    #chat-container {
+      display: flex;
+      flex-direction: column;
       width: 100%;
+      height: 100%;
       max-width: 400px;
-      height: 90vh;
-      background-color: #ffffff;
+      background-color: white;
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       overflow: hidden;
     }
 
-    /* Login/Registration Container */
-    #auth-container {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      height: 100%;
-      padding: 20px;
-    }
-
-    #auth-container input {
-      width: 100%;
-      padding: 10px;
-      margin: 10px 0;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      font-size: 1em;
-    }
-
-    #auth-container button {
-      padding: 10px 15px;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      font-size: 1em;
-      cursor: pointer;
-    }
-
-    #auth-container button:hover {
-      background-color: #0056b3;
-    }
-
-    /* User List */
-    #user-list-container {
-      display: none;
-      flex-direction: column;
-      width: 100%;
-      height: 100%;
-    }
-
-    #user-list-header {
-      background-color: #007bff;
-      color: white;
-      padding: 10px 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    #user-list-header h2 {
-      font-size: 1.2em;
-    }
-
-    #user-list {
-      flex: 1;
-      padding: 10px;
-      overflow-y: auto;
-      background-color: #f4f7fa;
-    }
-
-    .user {
-      display: flex;
-      align-items: center;
-      padding: 10px;
-      background-color: white;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .user img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      margin-right: 10px;
-    }
-
-    .user:hover {
-      background-color: #f0f0f0;
-    }
-
-    /* Chat Container */
-    #chat-container {
-      display: none;
-      flex-direction: column;
-      width: 100%;
-      height: 100%;
-    }
-
-    /* Chat Header */
     #chat-header {
       background-color: #007bff;
       color: white;
-      padding: 10px 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    #chat-header img {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      margin-right: 10px;
+      padding: 10px;
+      text-align: center;
     }
 
     #chat-messages {
@@ -149,7 +43,6 @@
       background-color: #f4f7fa;
     }
 
-    /* Message Styling */
     .message {
       max-width: 80%;
       padding: 10px;
@@ -173,11 +66,10 @@
       text-align: left;
     }
 
-    /* Chat Input */
     #chat-input-container {
       display: flex;
       padding: 10px;
-      background-color: #ffffff;
+      background-color: white;
       border-top: 1px solid #e0e0e0;
     }
 
@@ -191,13 +83,8 @@
     }
 
     .send-button {
-      display: flex;
-      justify-content: center;
-      align-items: center;
       width: 50px;
       height: 50px;
-      padding: 0;
-      font-size: 1.5em;
       background-color: #007bff;
       color: white;
       border: none;
@@ -208,54 +95,47 @@
     .send-button:hover {
       background-color: #0056b3;
     }
+
+    .user-list {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      max-width: 400px;
+    }
+
+    .user-list div {
+      padding: 10px;
+      cursor: pointer;
+      border-bottom: 1px solid #eee;
+    }
+
+    .user-list div:hover {
+      background-color: #f0f0f0;
+    }
+
   </style>
 </head>
 <body>
-  <div id="main-container">
-    <!-- Authentication -->
-    <div id="auth-container">
-      <h3>Login / Register</h3>
-      <input type="text" id="name" placeholder="Full Name (Register Only)" />
-      <input type="email" id="email" placeholder="Email" />
-      <input type="password" id="password" placeholder="Password" />
-      <input type="file" id="profile-pic" accept="image/*" />
-      <button id="login-button">Login</button>
-      <button id="register-button">Register</button>
-    </div>
-
-    <!-- User List -->
-    <div id="user-list-container">
-      <div id="user-list-header">
-        <h2>User List</h2>
-        <button id="logout-button">Logout</button>
-      </div>
-      <div id="user-list"></div>
-    </div>
-
-    <!-- Chat -->
-    <div id="chat-container">
-      <div id="chat-header">
-        <img src="" alt="Profile Picture" id="chat-header-pic" />
-        <h2 id="chat-header-name"></h2>
-        <button id="back-button">Back</button>
-      </div>
-      <div id="chat-messages"></div>
-      <div id="chat-input-container">
-        <input type="text" id="chat-input" placeholder="Type a message..." />
-        <button id="send-button" class="send-button">
-          <i class="fas fa-paper-plane"></i>
-        </button>
-      </div>
+  <div id="chat-container">
+    <div id="chat-header">Chat</div>
+    <div id="chat-messages"></div>
+    <div id="chat-input-container">
+      <input type="text" id="chat-input" placeholder="Type a message..." />
+      <button id="send-button" class="send-button">
+        &#9658;
+      </button>
     </div>
   </div>
 
-  <!-- Firebase SDK -->
+  <div id="user-list" class="user-list"></div>
+
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
   <script>
-    // Initialize Firebase
+    // Firebase Config
     const firebaseConfig = {
       apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
       authDomain: "social-bite-skofficial.firebaseapp.com",
@@ -263,160 +143,88 @@
       projectId: "social-bite-skofficial",
       storageBucket: "social-bite-skofficial.appspot.com",
       messagingSenderId: "239722707022",
-      appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
+      appId: "1:239722707022:web:5b4ab90b818ea7b345ed2d",
     };
+
     firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
+    const database = firebase.database();
 
     // Elements
-    const authContainer = document.getElementById('auth-container');
-    const userListContainer = document.getElementById('user-list-container');
-    const chatContainer = document.getElementById('chat-container');
-    const loginButton = document.getElementById('login-button');
-    const registerButton = document.getElementById('register-button');
-    const logoutButton = document.getElementById('logout-button');
-    const backButton = document.getElementById('back-button');
-    const userList = document.getElementById('user-list');
     const chatMessages = document.getElementById('chat-messages');
     const chatInput = document.getElementById('chat-input');
     const sendButton = document.getElementById('send-button');
-    const chatHeaderName = document.getElementById('chat-header-name');
-    const chatHeaderPic = document.getElementById('chat-header-pic');
+    const chatHeader = document.getElementById('chat-header');
+    const userList = document.getElementById('user-list');
 
-    const auth = firebase.auth();
-    const database = firebase.database();
-    const storage = firebase.storage();
+    let currentUserId = null;
+    let chatWithUserId = null;
 
-    // Register User
-    registerButton.addEventListener('click', () => {
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const profilePic = document.getElementById('profile-pic').files[0];
-
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          const user = userCredential.user;
-          const storageRef = storage.ref('profile_pics/' + user.uid + '.jpg');
-          storageRef.put(profilePic).then(snapshot => {
-            snapshot.ref.getDownloadURL().then(url => {
-              database.ref('users/' + user.uid).set({
-                name: name,
-                email: email,
-                profilePic: url,
-                status: 'online'
-              }).then(() => {
-                authContainer.style.display = 'none';
-                userListContainer.style.display = 'flex';
-              });
-            });
-          });
-        })
-        .catch(error => {
-          console.error('Error registering: ', error.message);
-        });
-    });
-
-    // Login User
-    loginButton.addEventListener('click', () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-
-      auth.signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          userListContainer.style.display = 'flex';
-          authContainer.style.display = 'none';
-        })
-        .catch(error => {
-          console.error('Error logging in: ', error.message);
-        });
-    });
-
-    // Logout User
-    logoutButton.addEventListener('click', () => {
-      auth.signOut().then(() => {
-        authContainer.style.display = 'flex';
-        userListContainer.style.display = 'none';
-        chatContainer.style.display = 'none';
-      });
-    });
-
-    // Show User List
-    firebase.auth().onAuthStateChanged(user => {
+    // Sign-in method
+    auth.onAuthStateChanged(user => {
       if (user) {
-        database.ref('users').once('value').then(snapshot => {
-          userList.innerHTML = '';
-          snapshot.forEach(childSnapshot => {
-            const userData = childSnapshot.val();
-            if (userData && userData.uid !== user.uid) {
-              const userDiv = document.createElement('div');
-              userDiv.classList.add('user');
-              const userImg = document.createElement('img');
-              userImg.src = userData.profilePic;
-              userDiv.appendChild(userImg);
-              const userName = document.createElement('div');
-              userName.textContent = userData.name;
-              userDiv.appendChild(userName);
-              userDiv.addEventListener('click', () => openChat(childSnapshot.key));
-              userList.appendChild(userDiv);
-            }
-          });
-        });
+        currentUserId = user.uid;
+        loadUserChatList();
       } else {
-        userListContainer.style.display = 'none';
-        authContainer.style.display = 'flex';
+        console.log("User not authenticated.");
       }
     });
 
-    // Open Chat with a User
-    function openChat(userId) {
-      userListContainer.style.display = 'none';
-      chatContainer.style.display = 'flex';
-      const userRef = database.ref('users/' + userId);
-      userRef.once('value').then(snapshot => {
-        const user = snapshot.val();
-        chatHeaderName.textContent = user.name;
-        chatHeaderPic.src = user.profilePic;
-      });
+    // Send message
+    sendButton.addEventListener('click', () => {
+      const messageText = chatInput.value.trim();
+      if (messageText === "") return;
 
-      const messagesRef = database.ref('chats/' + auth.currentUser.uid + '/' + userId);
-      messagesRef.on('child_added', snapshot => {
+      const message = {
+        sender: currentUserId,
+        text: messageText,
+        timestamp: Date.now(),
+      };
+
+      // Save message in Firebase under both user chats
+      database.ref(`chats/${currentUserId}/${chatWithUserId}`).push(message);
+      database.ref(`chats/${chatWithUserId}/${currentUserId}`).push(message);
+
+      chatInput.value = "";
+    });
+
+    // Listen for new messages
+    function listenForMessages() {
+      database.ref(`chats/${currentUserId}/${chatWithUserId}`).on('child_added', snapshot => {
         const message = snapshot.val();
-        const messageElement = document.createElement('div');
-        messageElement.classList.add('message');
-        if (message.sender === auth.currentUser.displayName || message.sender === 'Anonymous') {
-          messageElement.classList.add('sender-message');
-        } else {
-          messageElement.classList.add('receiver-message');
-        }
-        messageElement.textContent = `${message.sender}: ${message.text}`;
-        chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
+        displayMessage(message, message.sender === currentUserId);
       });
     }
 
-    // Send Message
-    sendButton.addEventListener('click', () => {
-      const messageText = chatInput.value;
-      if (!messageText) return;
+    // Display message in chat window
+    function displayMessage(message, isSender) {
+      const messageElement = document.createElement('div');
+      messageElement.classList.add('message');
+      messageElement.classList.add(isSender ? 'sender-message' : 'receiver-message');
+      messageElement.textContent = message.text;
+      chatMessages.appendChild(messageElement);
+      chatMessages.scrollTop = chatMessages.scrollHeight; // Scroll to bottom
+    }
 
-      const message = {
-        sender: auth.currentUser.displayName || 'Anonymous',
-        text: messageText,
-        timestamp: Date.now()
-      };
+    // Load the chat with a selected user
+    function loadChatWithUser(userId, userName) {
+      chatWithUserId = userId;
+      chatHeader.textContent = `Chat with ${userName}`;
+      listenForMessages();
+    }
 
-      const userId = chatHeaderName.textContent;
-      database.ref('chats/' + auth.currentUser.uid + '/' + userId).push(message);
-      database.ref('chats/' + userId + '/' + auth.currentUser.uid).push(message);
-
-      chatInput.value = ''; // Clear input after sending
-    });
-
-    // Back Button
-    backButton.addEventListener('click', () => {
-      userListContainer.style.display = 'flex';
-      chatContainer.style.display = 'none';
-    });
+    // Load the user list from Firebase
+    function loadUserChatList() {
+      database.ref('users').on('child_added', snapshot => {
+        const user = snapshot.val();
+        if (user.uid !== currentUserId) {
+          const userElement = document.createElement('div');
+          userElement.textContent = user.name;
+          userElement.addEventListener('click', () => loadChatWithUser(user.uid, user.name));
+          userList.appendChild(userElement);
+        }
+      });
+    }
   </script>
 </body>
 </html>
