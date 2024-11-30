@@ -258,12 +258,12 @@
     // Initialize Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
-    authDomain: "social-bite-skofficial.firebaseapp.com",
-    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
-    projectId: "social-bite-skofficial",
-    storageBucket: "social-bite-skofficial.appspot.com",
-    messagingSenderId: "239722707022",
-    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
+      authDomain: "social-bite-skofficial.firebaseapp.com",
+      databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
+      projectId: "social-bite-skofficial",
+      storageBucket: "social-bite-skofficial.appspot.com",
+      messagingSenderId: "239722707022",
+      appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
     };
     firebase.initializeApp(firebaseConfig);
 
@@ -282,12 +282,11 @@
     const chatHeaderName = document.getElementById('chat-header-name');
     const chatHeaderPic = document.getElementById('chat-header-pic');
 
-    // Firebase auth and database
     const auth = firebase.auth();
     const database = firebase.database();
     const storage = firebase.storage();
 
-    // Register
+    // Register User
     registerButton.addEventListener('click', () => {
       const name = document.getElementById('name').value;
       const email = document.getElementById('email').value;
@@ -317,14 +316,13 @@
         });
     });
 
-    // Login
+    // Login User
     loginButton.addEventListener('click', () => {
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
 
       auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
-          const user = userCredential.user;
           userListContainer.style.display = 'flex';
           authContainer.style.display = 'none';
         })
@@ -333,7 +331,7 @@
         });
     });
 
-    // Logout
+    // Logout User
     logoutButton.addEventListener('click', () => {
       auth.signOut().then(() => {
         authContainer.style.display = 'flex';
@@ -342,7 +340,7 @@
       });
     });
 
-    // Show user list
+    // Show User List
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         database.ref('users').once('value').then(snapshot => {
@@ -369,7 +367,7 @@
       }
     });
 
-    // Open Chat with a user
+    // Open Chat with a User
     function openChat(userId) {
       userListContainer.style.display = 'none';
       chatContainer.style.display = 'flex';
@@ -384,18 +382,19 @@
       messagesRef.on('child_added', snapshot => {
         const message = snapshot.val();
         const messageElement = document.createElement('div');
+        messageElement.classList.add('message');
         if (message.sender === auth.currentUser.displayName || message.sender === 'Anonymous') {
-          messageElement.classList.add('message', 'sender-message');
+          messageElement.classList.add('sender-message');
         } else {
-          messageElement.classList.add('message', 'receiver-message');
+          messageElement.classList.add('receiver-message');
         }
         messageElement.textContent = `${message.sender}: ${message.text}`;
         chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight; // Auto scroll
+        chatMessages.scrollTop = chatMessages.scrollHeight;
       });
     }
 
-    // Send message
+    // Send Message
     sendButton.addEventListener('click', () => {
       const messageText = chatInput.value;
       if (!messageText) return;
