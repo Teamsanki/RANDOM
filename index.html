@@ -7,183 +7,182 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
   <style>
-    /* Basic styling */
+    /* Global Styles */
     body {
       font-family: 'Roboto', sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f0f4f8;
+      background-color: #f4f7fa;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
     }
 
+    h2, h3 {
+      margin: 0;
+      color: #555;
+    }
+
+    /* Main Container */
     #main-container {
       width: 100%;
       max-width: 400px;
       height: 90vh;
       background-color: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
       overflow: hidden;
     }
 
-    #auth-container, #user-list-container, #call-container {
+    /* Login/Registration Container */
+    #auth-container {
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
+      height: 100%;
       padding: 20px;
+    }
+
+    #auth-container input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 1em;
+    }
+
+    #auth-container button {
+      padding: 10px 15px;
+      background-color: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 1em;
+      cursor: pointer;
+    }
+
+    #auth-container button:hover {
+      background-color: #0056b3;
+    }
+
+    /* User List */
+    #user-list-container {
+      display: none;
+      flex-direction: column;
+      width: 100%;
       height: 100%;
     }
 
-    #auth-container input, #auth-container button {
-      margin: 10px;
-      width: 80%;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      font-size: 16px;
+    #user-list-header {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
     }
 
-    #user-list-container {
-      display: none;
+    #user-list-header h2 {
+      font-size: 1.2em;
     }
 
     #user-list {
+      flex: 1;
       padding: 10px;
-      width: 100%;
-      background-color: #f9f9f9;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
       overflow-y: auto;
+      background-color: #f4f7fa;
     }
 
     .user {
       display: flex;
       align-items: center;
-      padding: 12px;
-      background-color: #fff;
-      margin-bottom: 15px;
-      border-radius: 8px;
+      padding: 10px;
+      background-color: white;
+      margin-bottom: 10px;
+      border-radius: 5px;
       cursor: pointer;
-      transition: background-color 0.2s ease-in-out;
     }
 
-    .user:hover {
-      background-color: #efefef;
-    }
-
-    #call-container {
-      display: none;
-      width: 100%;
-      height: 100%;
-      justify-content: center;
-      align-items: center;
-    }
-
-    #call-header {
-      width: 100%;
-      background-color: #007bff;
-      color: white;
-      padding: 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-radius: 8px;
-    }
-
-    #call-header img {
-      width: 45px;
-      height: 45px;
+    .user img {
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       margin-right: 10px;
     }
 
-    #call-buttons {
-      margin-top: 20px;
+    .user:hover {
+      background-color: #f0f0f0;
+    }
+
+    /* Chat Container */
+    #chat-container {
+      display: none;
+      flex-direction: column;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Chat Header */
+    #chat-header {
+      background-color: #007bff;
+      color: white;
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    #chat-header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      margin-right: 10px;
+    }
+
+    #chat-messages {
+      flex: 1;
+      padding: 10px;
+      overflow-y: auto;
+      background-color: #f4f7fa;
+    }
+
+    /* Chat Input */
+    #chat-input-container {
+      display: flex;
+      padding: 10px;
+      background-color: #ffffff;
+      border-top: 1px solid #e0e0e0;
+    }
+
+    #chat-input {
+      flex: 1;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      font-size: 1em;
+      margin-right: 10px;
+    }
+
+    .send-button {
       display: flex;
       justify-content: center;
-      gap: 20px;
-    }
-
-    #call-buttons button {
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 8px;
-      border: none;
-      cursor: pointer;
-      transition: background-color 0.2s ease;
-    }
-
-    #call-buttons button:hover {
-      background-color: #0056b3;
-      color: white;
-    }
-
-    #call-buttons button:active {
-      background-color: #003d73;
-    }
-
-    #timer {
-      margin-top: 30px;
+      align-items: center;
+      width: 50px;
+      height: 50px;
+      padding: 0;
       font-size: 1.5em;
-      color: #333;
-      text-align: center;
-    }
-
-    .call-status {
-      font-size: 18px;
-      margin-top: 15px;
-      color: #666;
-    }
-
-    .call-status.waiting {
-      color: #ff9800;
-    }
-
-    .call-status.accepted {
-      color: #4caf50;
-    }
-
-    /* Popup styling */
-    #call-popup {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background-color: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-      z-index: 999;
-      text-align: center;
-    }
-
-    #call-popup button {
-      margin: 10px;
-      padding: 12px 20px;
-      font-size: 16px;
-      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
       border: none;
+      border-radius: 50%;
       cursor: pointer;
     }
 
-    #call-popup button.accept {
-      background-color: #4caf50;
-      color: white;
-    }
-
-    #call-popup button.reject {
-      background-color: #f44336;
-      color: white;
-    }
-
-    #call-popup .timer {
-      margin-top: 10px;
-      font-size: 18px;
+    .send-button:hover {
+      background-color: #0056b3;
     }
   </style>
 </head>
@@ -209,27 +208,20 @@
       <div id="user-list"></div>
     </div>
 
-    <!-- Voice Call -->
-    <div id="call-container">
-      <div id="call-header">
-        <img src="" alt="Profile Picture" id="call-header-pic" />
-        <h2 id="call-header-name"></h2>
+    <!-- Chat -->
+    <div id="chat-container">
+      <div id="chat-header">
+        <img src="" alt="Profile Picture" id="chat-header-pic" />
+        <h2 id="chat-header-name"></h2>
+        <button id="back-button">Back</button>
       </div>
-      <div id="call-buttons">
-        <button id="accept-call-button" style="display: none;">Accept Call</button>
-        <button id="end-call-button" style="display: none;">End Call</button>
+      <div id="chat-messages"></div>
+      <div id="chat-input-container">
+        <input type="text" id="chat-input" placeholder="Type a message..." />
+        <button id="send-button" class="send-button">
+          <i class="fas fa-paper-plane"></i>
+        </button>
       </div>
-      <div id="timer"></div>
-      <div id="call-status" class="call-status waiting">Waiting for the receiver...</div>
-    </div>
-
-    <!-- Call Popup -->
-    <div id="call-popup">
-      <h3>Incoming Call</h3>
-      <p>You have an incoming call!</p>
-      <div class="timer" id="popup-timer"></div>
-      <button class="accept">Accept Call</button>
-      <button class="reject">Reject Call</button>
     </div>
   </div>
 
@@ -238,186 +230,182 @@
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-storage.js"></script>
-  <script>
-    // Initialize Firebase
-    const firebaseConfig = {
-      apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
-      authDomain: "social-bite-skofficial.firebaseapp.com",
-      databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
-      projectId: "social-bite-skofficial",
-      storageBucket: "social-bite-skofficial.appspot.com",
-      messagingSenderId: "239722707022",
-      appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
-    };
-    firebase.initializeApp(firebaseConfig);
+<script>
+  // Initialize Firebase
+const firebaseConfig = {
+  apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
+    authDomain: "social-bite-skofficial.firebaseapp.com",
+    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
+    projectId: "social-bite-skofficial",
+    storageBucket: "social-bite-skofficial.appspot.com",
+    messagingSenderId: "239722707022",
+    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
+};
+firebase.initializeApp(firebaseConfig);
 
-    const auth = firebase.auth();
-    const database = firebase.database();
-    const storage = firebase.storage();
+// Elements
+const authContainer = document.getElementById('auth-container');
+const userListContainer = document.getElementById('user-list-container');
+const chatContainer = document.getElementById('chat-container');
+const loginButton = document.getElementById('login-button');
+const registerButton = document.getElementById('register-button');
+const logoutButton = document.getElementById('logout-button');
+const backButton = document.getElementById('back-button');
+const sendButton = document.getElementById('send-button');
+const chatInput = document.getElementById('chat-input');
+const userList = document.getElementById('user-list');
+const chatMessages = document.getElementById('chat-messages');
+const chatHeaderName = document.getElementById('chat-header-name');
+const chatHeaderPic = document.getElementById('chat-header-pic');
+const nameInput = document.getElementById('name');
+const emailInput = document.getElementById('email');
+const passwordInput = document.getElementById('password');
+const profilePicInput = document.getElementById('profile-pic');
 
-    const authContainer = document.getElementById('auth-container');
-    const userListContainer = document.getElementById('user-list-container');
-    const callContainer = document.getElementById('call-container');
-    const registerButton = document.getElementById('register-button');
-    const loginButton = document.getElementById('login-button');
-    const logoutButton = document.getElementById('logout-button');
-    const acceptCallButton = document.getElementById('accept-call-button');
-    const endCallButton = document.getElementById('end-call-button');
-    const callHeaderName = document.getElementById('call-header-name');
-    const callHeaderPic = document.getElementById('call-header-pic');
-    const timerDisplay = document.getElementById('timer');
-    const callStatusDisplay = document.getElementById('call-status');
-    const callPopup = document.getElementById('call-popup');
-    const callPopupAccept = callPopup.querySelector('.accept');
-    const callPopupReject = callPopup.querySelector('.reject');
-    const popupTimer = document.getElementById('popup-timer');
+// Firebase Auth and Database References
+const auth = firebase.auth();
+const database = firebase.database();
+const storage = firebase.storage();
 
+// Auth state listener
+auth.onAuthStateChanged(user => {
+  if (user) {
     // Show user list after login
-    auth.onAuthStateChanged(user => {
-      if (user) {
-        authContainer.style.display = 'none';
-        userListContainer.style.display = 'block';
-        displayUsers();
-      } else {
-        authContainer.style.display = 'block';
-        userListContainer.style.display = 'none';
-      }
-    });
+    authContainer.style.display = 'none';
+    userListContainer.style.display = 'flex';
+    loadUserList();
+  } else {
+    // Show login/register screen if not logged in
+    authContainer.style.display = 'flex';
+    userListContainer.style.display = 'none';
+    chatContainer.style.display = 'none';
+  }
+});
 
-    // Show users
-    function displayUsers() {
-      const userList = document.getElementById('user-list');
-      database.ref('users').once('value', snapshot => {
-        userList.innerHTML = '';
-        snapshot.forEach(childSnapshot => {
-          const user = childSnapshot.val();
-          const userDiv = document.createElement('div');
-          userDiv.classList.add('user');
-          userDiv.innerHTML = `
-            <img src="${user.profilePic}" alt="Profile Picture" width="50" />
-            <span>${user.name}</span>
-          `;
-          userDiv.addEventListener('click', () => startVoiceCall(childSnapshot.key));
-          userList.appendChild(userDiv);
-        });
+// Register User
+registerButton.addEventListener('click', () => {
+  const name = nameInput.value;
+  const email = emailInput.value;
+  const password = passwordInput.value;
+  const profilePic = profilePicInput.files[0];
+
+  if (!name || !email || !password || !profilePic) {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  // Create user with Firebase Authentication
+  auth.createUserWithEmailAndPassword(email, password)
+    .then(async (userCredential) => {
+      const user = userCredential.user;
+      const userId = user.uid;
+
+      // Upload profile picture to Firebase Storage
+      const storageRef = storage.ref(`profile_pics/${userId}`);
+      const snapshot = await storageRef.put(profilePic);
+      const profilePicURL = await snapshot.ref.getDownloadURL();
+
+      // Save user profile data in Realtime Database
+      database.ref(`users/${userId}`).set({
+        name: name,
+        email: email,
+        profilePic: profilePicURL
       });
-    }
 
-    // Register user
-    registerButton.addEventListener('click', () => {
-      const name = document.getElementById('name').value;
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const profilePic = document.getElementById('profile-pic').files[0];
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(async (userCredential) => {
-          const user = userCredential.user;
-          const storageRef = storage.ref(`profile_pics/${user.uid}`);
-          await storageRef.put(profilePic);
-          const profilePicURL = await storageRef.getDownloadURL();
-          const usersRef = database.ref('users');
-          usersRef.child(user.uid).set({
-            name,
-            email,
-            profilePic: profilePicURL
-          });
-        })
-        .catch(error => console.error(error.message));
+      alert("Registration successful!");
+    })
+    .catch(error => alert(error.message));
+});
+
+// Login User
+loginButton.addEventListener('click', () => {
+  const email = emailInput.value;
+  const password = passwordInput.value;
+
+  if (!email || !password) {
+    alert("Please fill all fields.");
+    return;
+  }
+
+  auth.signInWithEmailAndPassword(email, password)
+    .catch(error => alert(error.message));
+});
+
+// Load User List
+function loadUserList() {
+  database.ref('users').once('value', snapshot => {
+    userList.innerHTML = ''; // Clear previous list
+    snapshot.forEach(childSnapshot => {
+      const user = childSnapshot.val();
+      const userId = childSnapshot.key;
+
+      const userElement = document.createElement('div');
+      userElement.classList.add('user');
+      userElement.innerHTML = `
+        <img src="${user.profilePic}" alt="${user.name}">
+        <h3>${user.name}</h3>
+      `;
+      userElement.addEventListener('click', () => openChat(userId));
+      userList.appendChild(userElement);
     });
+  });
+}
 
-    // Login user
-    loginButton.addEventListener('click', () => {
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      auth.signInWithEmailAndPassword(email, password)
-        .catch(error => console.error(error.message));
-    });
+// Open Private Chat with Selected User
+function openChat(userId) {
+  // Hide user list and show chat container
+  userListContainer.style.display = 'none';
+  chatContainer.style.display = 'flex';
 
-    // Logout user
-    logoutButton.addEventListener('click', () => {
-      auth.signOut();
-    });
+  // Get selected user's profile data
+  database.ref(`users/${userId}`).once('value', snapshot => {
+    const user = snapshot.val();
 
-    // Start voice call
-    function startVoiceCall(receiverId) {
-      const currentUser = auth.currentUser;
-      const receiverRef = database.ref(`users/${receiverId}`);
-      receiverRef.once('value').then(snapshot => {
-        const receiverData = snapshot.val();
-        callHeaderName.textContent = receiverData.name;
-        callHeaderPic.src = receiverData.profilePic;
-        callContainer.style.display = 'flex';
-        userListContainer.style.display = 'none';
-        acceptCallButton.style.display = 'none';
-        callStatusDisplay.textContent = 'Waiting for the receiver...';
+    chatHeaderName.textContent = user.name;
+    chatHeaderPic.src = user.profilePic;
+    chatHeaderPic.alt = user.name;
+  });
 
-        // Create a call request entry
-        const callData = {
-          caller: currentUser.uid,
-          receiver: receiverId,
-          status: 'waiting'
-        };
-        database.ref('calls').push(callData);
+  // Listen for incoming messages
+  const chatMessagesRef = database.ref(`chats/${auth.currentUser.uid}/${userId}`);
+  chatMessagesRef.on('child_added', snapshot => {
+    const message = snapshot.val();
+    const messageElement = document.createElement('div');
+    messageElement.textContent = `${message.sender}: ${message.text}`;
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight; // Auto scroll
+  });
 
-        // Show call popup for the receiver
-        callPopup.style.display = 'block';
-        startPopupTimer();
-        callPopupAccept.onclick = () => acceptCall(receiverId);
-        callPopupReject.onclick = () => rejectCall(receiverId);
-      });
-    }
+  // Send a message
+  sendButton.addEventListener('click', () => sendMessage(userId));
+}
 
-    // Start Popup Timer (Before call is accepted)
-    function startPopupTimer() {
-      let timer = 0;
-      const timerInterval = setInterval(() => {
-        timer++;
-        popupTimer.textContent = `Call will expire in: ${timer}s`;
-      }, 1000);
-    }
+// Send Message to Selected User
+function sendMessage(userId) {
+  const messageText = chatInput.value;
+  if (!messageText) return;
 
-    // Accept call
-    function acceptCall(receiverId) {
-      const currentUser = auth.currentUser;
-      const callRef = database.ref('calls').orderByChild('receiver').equalTo(currentUser.uid);
-      callRef.once('child_added', snapshot => {
-        const callId = snapshot.key;
-        const callData = snapshot.val();
+  const message = {
+    sender: auth.currentUser.displayName || 'Anonymous',
+    text: messageText,
+    timestamp: Date.now()
+  };
 
-        if (callData.status === 'waiting') {
-          // Update the call status to 'accepted'
-          callRef.child(callId).update({ status: 'accepted' });
+  // Save message to both users' chat logs
+  database.ref(`chats/${auth.currentUser.uid}/${userId}`).push(message);
+  database.ref(`chats/${userId}/${auth.currentUser.uid}`).push(message);
 
-          // Hide the popup
-          callPopup.style.display = 'none';
+  chatInput.value = ''; // Clear input after sending
+}
 
-          // Show call page
-          callStatusDisplay.textContent = 'Call Accepted';
-          startCallTimer();
-        }
-      });
-    }
+// Logout User
+logoutButton.addEventListener('click', () => {
+  auth.signOut().catch(error => alert(error.message));
+});
 
-    // Reject call
-    function rejectCall(receiverId) {
-      callPopup.style.display = 'none';
-    }
-
-    // Start Call Timer (After call is accepted)
-    function startCallTimer() {
-      let timer = 0;
-      const timerInterval = setInterval(() => {
-        timer++;
-        timerDisplay.textContent = `Call Duration: ${timer} seconds`;
-      }, 1000);
-
-      // End call
-      endCallButton.addEventListener('click', () => {
-        clearInterval(timerInterval);
-        callContainer.style.display = 'none';
-        userListContainer.style.display = 'block';
-      });
-    }
-  </script>
-</body>
-</html>
+// Back to User List from Chat
+backButton.addEventListener('click', () => {
+  chatContainer.style.display = 'none';
+  userListContainer.style.display = 'flex';
+});
+</script>
