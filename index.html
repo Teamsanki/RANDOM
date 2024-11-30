@@ -225,6 +225,32 @@
         }
       });
     }
+
+    // Register user (simplified for this example)
+    function registerUser(name, email, password) {
+      auth.createUserWithEmailAndPassword(email, password).then(userCredential => {
+        const user = userCredential.user;
+        database.ref('users/' + user.uid).set({
+          name: name,
+          email: email,
+        });
+      }).catch(error => {
+        console.log(error.message);
+      });
+    }
+
+    // Login user
+    function loginUser(email, password) {
+      auth.signInWithEmailAndPassword(email, password).catch(error => {
+        console.log(error.message);
+      });
+    }
+
+    // Logout user
+    function logoutUser() {
+      auth.signOut();
+    }
+
   </script>
 </body>
 </html>
