@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Online Tic-Tac-Toe</title>
+  <title>Multiplayer Tic-Tac-Toe</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -29,26 +29,30 @@
     .cell.taken {
       pointer-events: none;
     }
+    #status {
+      margin-top: 20px;
+      font-size: 1.2rem;
+    }
   </style>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js"></script>
 </head>
 <body>
-  <h1>Online Tic-Tac-Toe</h1>
+  <h1>Multiplayer Tic-Tac-Toe</h1>
   <div id="status">Waiting for another player...</div>
   <div class="board" id="board"></div>
 
   <script>
     // Firebase Configuration
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      databaseURL: "YOUR_DATABASE_URL",  // Replace with your Firebase Database URL
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
+    authDomain: "social-bite-skofficial.firebaseapp.com",
+    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
+    projectId: "social-bite-skofficial",
+    storageBucket: "social-bite-skofficial.appspot.com",
+    messagingSenderId: "239722707022",
+    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
     };
 
     // Initialize Firebase
@@ -58,7 +62,7 @@
     // Game Variables
     const board = document.getElementById('board');
     const status = document.getElementById('status');
-    const gameId = "online-tic-tac-toe";  // Unique game ID
+    const gameId = "multiplayer-tic-tac-toe";  // Unique game ID
     let playerSymbol = '';
     let isPlayerTurn = false;
 
