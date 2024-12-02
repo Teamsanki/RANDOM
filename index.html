@@ -45,6 +45,23 @@
             font-weight: bold;
             text-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF;
             user-select: none;
+            opacity: 0;
+            animation: wordAnimation 1s forwards;
+        }
+
+        @keyframes wordAnimation {
+            0% {
+                opacity: 0;
+                transform: scale(0) translateY(-20px);
+            }
+            50% {
+                opacity: 1;
+                transform: scale(1.2) translateY(0);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
         }
 
         .level {
@@ -214,7 +231,11 @@
 
     function updateWord() {
         currentWord = generateRandomWord(level);
-        document.getElementById('wordDisplay').textContent = currentWord;
+        let wordElement = document.getElementById('wordDisplay');
+        wordElement.textContent = currentWord;
+        wordElement.classList.remove('wordAnimation'); // Reset animation
+        void wordElement.offsetWidth; // Trigger reflow
+        wordElement.classList.add('wordAnimation'); // Reapply animation
         document.getElementById('wordInput').value = '';  // Clear input box
         document.getElementById('wordInput').focus();  // Focus on the input box
     }
@@ -239,7 +260,6 @@
             if (score > highestScore) {
                 highestScore = score;
                 localStorage.setItem("highestScore", highestScore);
-                showScorePopup();
             }
 
             rank = getRank(highestScore);
@@ -264,34 +284,30 @@
         createParticles(event);
     });
 
+    document.body.addEventListener("click", function(event) {
+        createParticles(event);
+        var audio = document.getElementById('backgroundMusic');
+        audio.play();
+    });
+
     function createParticles(event) {
         for (let i = 0; i < 10; i++) {
             let particle = document.createElement("div");
             particle.classList.add("particle");
-            let x = event.touches[0].clientX;
-            let y = event.touches[0].clientY;
-            particle.style.left = `${x}px`;
-            particle.style.top = `${y}px`;
-            let angle = Math.random() * 360;
-            let distance = Math.random() * 50 + 50;
-            let xOffset = distance * Math.cos(angle);
-            let yOffset = distance * Math.sin(angle);
-            particle.style.setProperty("--x", `${xOffset}px`);
-            particle.style.setProperty("--y", `${yOffset}px`);
             document.body.appendChild(particle);
-            particles.push(particle);
-
+            let size = Math.random() * 10 + 5;
+            let x = event.clientX + (Math.random() - 0.5) * 100;
+            let y = event.clientY + (Math.random() - 0.5) * 100;
+            particle.style.width = size + "px";
+            particle.style.height = size + "px";
+            particle.style.left = x + "px";
+            particle.style.top = y + "px";
+            particle.style.setProperty('--x', Math.random() * 100 + "px");
+            particle.style.setProperty('--y', Math.random() * 100 + "px");
             setTimeout(() => {
                 particle.remove();
             }, 1000);
         }
-    }
-
-    // Show the popup if user beats the highest score
-    function showScorePopup() {
-        alert("You broke the highest score!");
-        localStorage.setItem("score", score);
-        localStorage.setItem("level", level);
     }
 
     // Play the background music after user interaction
