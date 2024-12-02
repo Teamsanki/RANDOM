@@ -3,35 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Random Video Chat</title>
+    <title>GitHub Repository: My Project</title>
     <style>
+        /* Basic Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body Styling */
         body {
             font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+
+        /* Header Styling */
+        header {
+            background-color: #333;
+            color: white;
             text-align: center;
-            margin-top: 50px;
+            padding: 10px;
         }
 
-        #videoContainer {
-            display: flex;
-            justify-content: center;
-            margin: 20px;
+        /* Section Styling */
+        section {
+            margin-top: 20px;
         }
 
-        video {
-            width: 45%;
-            margin: 10px;
-            border: 2px solid black;
+        /* Link Styling */
+        a {
+            color: #0366d6;
+            text-decoration: none;
         }
 
+        a:hover {
+            text-decoration: underline;
+        }
+
+        /* Button Styling */
         button {
             padding: 10px 20px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 20px;
             background-color: #4CAF50;
             color: white;
             border: none;
+            cursor: pointer;
+            font-size: 16px;
             border-radius: 5px;
+            margin-top: 20px;
         }
 
         button:hover {
@@ -40,118 +61,38 @@
     </style>
 </head>
 <body>
-    <h1>Welcome to Random Video Chat</h1>
-    <div id="videoContainer">
-        <video id="userVideo" autoplay></video>
-        <video id="randomUserVideo" autoplay></video>
-    </div>
-    <button id="startCall">Start Call</button>
 
-    <!-- Firebase Scripts -->
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+<header>
+    <h1>Welcome to My GitHub Repository</h1>
+</header>
 
-    <script>
-        // Initialize Firebase
-        const firebaseConfig = {
-            apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
-authDomain: "social-bite-skofficial.firebaseapp.com",
-projectId: "social-bite-skofficial",
-storageBucket: "social-bite-skofficial.appspot.com",
-messagingSenderId: "239722707022",
-appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
-        };
-        const app = firebase.initializeApp(firebaseConfig);
-        const firestore = firebase.firestore();
-        const auth = firebase.auth();
+<section>
+    <h2>About This Repository</h2>
+    <p>This project showcases my work hosted on GitHub. You can explore the code, issues, and more.</p>
+    <p>Visit my GitHub repository here: 
+        <a href="https://github.com/yourusername/your-repository" target="_blank">My GitHub Repository</a>
+    </p>
+</section>
 
-        // Get references to DOM elements
-        const startCallButton = document.getElementById("startCall");
-        const userVideo = document.getElementById("userVideo");
-        const randomUserVideo = document.getElementById("randomUserVideo");
+<section>
+    <h2>How to Use This Repo</h2>
+    <p>Clone the repository and follow the instructions in the README file to set it up on your machine.</p>
+</section>
 
-        // WebRTC Configuration
-        const peerConnectionConfig = {
-            iceServers: [{urls: 'stun:stun.l.google.com:19302'}]
-        };
+<!-- Button to trigger JS action -->
+<section>
+    <button id="changeColorBtn">Change Background Color</button>
+</section>
 
-        let localStream;
-        let peerConnection;
+<script>
+    // JavaScript to change the background color when the button is clicked
+    document.getElementById("changeColorBtn").addEventListener("click", function() {
+        // Generate a random color
+        var randomColor = '#' + Math.floor(Math.random() * 16777215).toString(16);
+        // Change the background color of the body
+        document.body.style.backgroundColor = randomColor;
+    });
+</script>
 
-        // Function to get media stream
-        async function getMediaStream() {
-            try {
-                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-                userVideo.srcObject = localStream;
-            } catch (error) {
-                console.error("Error accessing media devices.", error);
-            }
-        }
-
-        // Function to connect to random user
-        async function startCall() {
-            await getMediaStream();
-
-            // Create new peer connection for WebRTC
-            peerConnection = new RTCPeerConnection(peerConnectionConfig);
-            
-            // Add local stream to the peer connection
-            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
-
-            // Listen for remote stream
-            peerConnection.ontrack = event => {
-                randomUserVideo.srcObject = event.streams[0];
-            };
-
-            // Handle ICE candidates
-            peerConnection.onicecandidate = event => {
-                if (event.candidate) {
-                    firestore.collection("calls").add({
-                        candidate: event.candidate,
-                    });
-                }
-            };
-
-            // Create offer to connect to another user
-            const offer = await peerConnection.createOffer();
-            await peerConnection.setLocalDescription(offer);
-
-            // Save the offer to Firebase to send to the random user
-            firestore.collection("calls").add({
-                offer: offer,
-                user: auth.currentUser ? auth.currentUser.uid : "anonymous",
-                createdAt: firebase.firestore.FieldValue.serverTimestamp()
-            });
-        }
-
-        // Listen for incoming offer and connect
-        firestore.collection("calls").onSnapshot(snapshot => {
-            snapshot.forEach(doc => {
-                const offer = doc.data().offer;
-                const candidate = doc.data().candidate;
-                
-                if (offer && !peerConnection) {
-                    peerConnection = new RTCPeerConnection(peerConnectionConfig);
-
-                    // Add ICE candidate if exists
-                    if (candidate) {
-                        peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
-                    }
-
-                    peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-                    peerConnection.createAnswer().then(answer => {
-                        peerConnection.setLocalDescription(answer);
-                        firestore.collection("calls").doc(doc.id).update({
-                            answer: answer
-                        });
-                    }).catch(error => console.error("Error creating answer:", error));
-                }
-            });
-        });
-
-        // Start the call when button is clicked
-        startCallButton.addEventListener("click", startCall);
-    </script>
 </body>
 </html>
