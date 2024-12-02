@@ -4,7 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Random Video Chat</title>
-    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #videoContainer {
+            display: flex;
+            justify-content: center;
+            margin: 20px;
+        }
+
+        video {
+            width: 45%;
+            margin: 10px;
+            border: 2px solid black;
+        }
+
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
     <h1>Welcome to Random Video Chat</h1>
@@ -13,108 +46,94 @@
         <video id="randomUserVideo" autoplay></video>
     </div>
     <button id="startCall">Start Call</button>
+
+    <!-- Firebase Scripts -->
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
-    <script src="app.js"></script>
-</body>
-</html>
-body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    margin-top: 50px;
-}
 
-#videoContainer {
-    display: flex;
-    justify-content: center;
-    margin: 20px;
-}
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+        const app = firebase.initializeApp(firebaseConfig);
+        const firestore = firebase.firestore();
+        const auth = firebase.auth();
 
-video {
-    width: 45%;
-    margin: 10px;
-    border: 2px solid black;
-}
-// Initialize Firebase
-const firebaseConfig = {
-    apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
-    authDomain: "social-bite-skofficial.firebaseapp.com",
-    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
-    projectId: "social-bite-skofficial",
-    storageBucket: "social-bite-skofficial.appspot.com",
-    messagingSenderId: "239722707022",
-    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
-};
-const app = firebase.initializeApp(firebaseConfig);
-const firestore = firebase.firestore();
-const auth = firebase.auth();
+        // Get references to DOM elements
+        const startCallButton = document.getElementById("startCall");
+        const userVideo = document.getElementById("userVideo");
+        const randomUserVideo = document.getElementById("randomUserVideo");
 
-// Get references to DOM elements
-const startCallButton = document.getElementById("startCall");
-const userVideo = document.getElementById("userVideo");
-const randomUserVideo = document.getElementById("randomUserVideo");
+        // WebRTC Configuration
+        const peerConnectionConfig = {
+            iceServers: [{urls: 'stun:stun.l.google.com:19302'}]
+        };
 
-// WebRTC Configuration
-const peerConnectionConfig = {
-    iceServers: [{urls: 'stun:stun.l.google.com:19302'}]
-};
+        let localStream;
+        let peerConnection;
 
-let localStream;
-let peerConnection;
+        // Function to get media stream
+        async function getMediaStream() {
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                userVideo.srcObject = localStream;
+            } catch (error) {
+                console.error("Error accessing media devices.", error);
+            }
+        }
 
-// Function to get media stream
-async function getMediaStream() {
-    try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        userVideo.srcObject = localStream;
-    } catch (error) {
-        console.error("Error accessing media devices.", error);
-    }
-}
+        // Function to connect to random user
+        async function startCall() {
+            await getMediaStream();
 
-// Function to connect to random user
-async function startCall() {
-    await getMediaStream();
+            // Create new peer connection for WebRTC
+            peerConnection = new RTCPeerConnection(peerConnectionConfig);
+            
+            // Add local stream to the peer connection
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
-    // Create new peer connection for WebRTC
-    peerConnection = new RTCPeerConnection(peerConnectionConfig);
-    
-    // Add local stream to the peer connection
-    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            // Listen for remote stream
+            peerConnection.ontrack = event => {
+                randomUserVideo.srcObject = event.streams[0];
+            };
 
-    // Listen for remote stream
-    peerConnection.ontrack = event => {
-        randomUserVideo.srcObject = event.streams[0];
-    };
+            // Create offer to connect to another user
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
 
-    // Create offer to connect to another user
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-
-    // Save the offer to Firebase to send to the random user
-    firestore.collection("calls").add({
-        offer: offer,
-        user: auth.currentUser ? auth.currentUser.uid : "anonymous",
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-}
-
-// Listen for incoming offer and connect
-firestore.collection("calls").onSnapshot(snapshot => {
-    snapshot.forEach(doc => {
-        const offer = doc.data().offer;
-        if (offer && !peerConnection) {
-            peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
-            peerConnection.createAnswer().then(answer => {
-                peerConnection.setLocalDescription(answer);
-                firestore.collection("calls").doc(doc.id).update({
-                    answer: answer
-                });
+            // Save the offer to Firebase to send to the random user
+            firestore.collection("calls").add({
+                offer: offer,
+                user: auth.currentUser ? auth.currentUser.uid : "anonymous",
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
             });
         }
-    });
-});
 
-// Start the call when button is clicked
-startCallButton.addEventListener("click", startCall);
+        // Listen for incoming offer and connect
+        firestore.collection("calls").onSnapshot(snapshot => {
+            snapshot.forEach(doc => {
+                const offer = doc.data().offer;
+                if (offer && !peerConnection) {
+                    peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+                    peerConnection.createAnswer().then(answer => {
+                        peerConnection.setLocalDescription(answer);
+                        firestore.collection("calls").doc(doc.id).update({
+                            answer: answer
+                        });
+                    });
+                }
+            });
+        });
+
+        // Start the call when button is clicked
+        startCallButton.addEventListener("click", startCall);
+    </script>
+</body>
+</html>
