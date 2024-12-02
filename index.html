@@ -3,313 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Neon Particles Game</title>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #111;
-            font-family: Arial, sans-serif;
-        }
-
-        .particle {
-            position: absolute;
-            width: 10px;
-            height: 10px;
-            background-color: rgba(0, 255, 255, 0.7);
-            border-radius: 50%;
-            pointer-events: none;
-            animation: particleMovement 1s forwards;
-        }
-
-        @keyframes particleMovement {
-            0% {
-                opacity: 1;
-                transform: scale(1) translate(0, 0);
-            }
-            100% {
-                opacity: 0;
-                transform: scale(0.3) translate(var(--x), var(--y));
-            }
-        }
-
-        .word {
-            position: absolute;
-            top: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 24px;
-            color: #00FFFF;
-            text-align: center;
-            font-weight: bold;
-            text-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF;
-            user-select: none;
-            opacity: 0;
-            animation: wordAnimation 1s forwards;
-        }
-
-        @keyframes wordAnimation {
-            0% {
-                opacity: 0;
-                transform: scale(0) translateY(-20px);
-            }
-            50% {
-                opacity: 1;
-                transform: scale(1.2) translateY(0);
-            }
-            100% {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-            }
-        }
-
-        .level {
-            position: absolute;
-            top: 40px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 20px;
-            color: #FF1493;
-            font-weight: bold;
-        }
-
-        .score {
-            position: absolute;
-            top: 70px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 20px;
-            color: #FFFF00;
-            font-weight: bold;
-        }
-
-        .input-box {
-            position: absolute;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px;
-            font-size: 20px;
-            text-align: center;
-            border: 2px solid #00FFFF;
-            background-color: #111;
-            color: #00FFFF;
-            border-radius: 5px;
-        }
-
-        .leaderboard {
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            color: #FF6347;
-            font-size: 18px;
-        }
-
-        /* Popup styles */
-        .popup {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0, 0, 0, 0.8);
-            color: #FF6347;
-            padding: 20px;
-            border-radius: 10px;
-            display: none;
-            font-size: 20px;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .popup button {
-            margin-top: 10px;
-            padding: 10px 20px;
-            background-color: #00FFFF;
-            border: none;
-            color: #111;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-
-        .popup input {
-            margin-top: 10px;
-            padding: 5px;
-            font-size: 18px;
-        }
-
-        /* Mobile responsiveness */
-        @media (max-width: 600px) {
-            .word {
-                font-size: 18px;
-            }
-            .level {
-                font-size: 16px;
-            }
-            .score {
-                font-size: 16px;
-            }
-            .input-box {
-                font-size: 18px;
-                width: 80%;
-            }
-            .leaderboard {
-                font-size: 14px;
-            }
-        }
-
-    </style>
+    <title>Random Video Chat</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-
-<!-- Background Music -->
-<audio id="backgroundMusic" loop>
-    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mp3">
-    Your browser does not support the audio element.
-</audio>
-
-<div class="word" id="wordDisplay">Get Ready!</div>
-<div class="level" id="levelDisplay">Level: 1</div>
-<div class="score" id="scoreDisplay">Score: 0</div>
-<input type="text" id="wordInput" class="input-box" placeholder="Type the word...">
-<div class="leaderboard" id="leaderboard"></div>
-
-<!-- Popup for entering name and age -->
-<div class="popup" id="infoPopup">
-    Enter your name and age to continue:<br>
-    Name: <input type="text" id="playerName"><br>
-    Age: <input type="text" id="playerAge"><br>
-    <button onclick="startGameWithInfo()">Start Game</button>
-</div>
-
-<script>
-    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    let level = 1;
-    let currentWord = "";
-    let score = 0;
-    let username = "";
-    let userAge = "";
-    let highestScore = localStorage.getItem("highestScore") || 0;
-    let rank = getRank(highestScore);
-
-    // Ask for user info to start the game
-    showInfoPopup();
-
-    function showInfoPopup() {
-        document.getElementById('infoPopup').style.display = 'block';
-    }
-
-    function startGameWithInfo() {
-        username = document.getElementById('playerName').value;
-        userAge = document.getElementById('playerAge').value;
-        localStorage.setItem("username", username);
-        localStorage.setItem("userAge", userAge);
-        startGame();
-        document.getElementById('infoPopup').style.display = 'none';
-    }
-
-    function startGame() {
-        updateWord();
-        updateLeaderboard();
-    }
-
-    function updateLeaderboard() {
-        document.getElementById('leaderboard').innerHTML = `
-            Highest Score: ${highestScore} (${rank})<br>
-            Your Rank: ${rank}<br>
-            Name: ${username}, Age: ${userAge}
-        `;
-    }
-
-    function getRank(score) {
-        if (score >= 5000) return "nPRO";
-        if (score > 5000) return "Legend";
-        if (score >= 2500) return "Pro";
-        return "Noob";
-    }
-
-    function updateWord() {
-        currentWord = generateRandomWord(level);
-        let wordElement = document.getElementById('wordDisplay');
-        wordElement.textContent = currentWord;
-        wordElement.classList.remove('wordAnimation'); // Reset animation
-        void wordElement.offsetWidth; // Trigger reflow
-        wordElement.classList.add('wordAnimation'); // Reapply animation
-        document.getElementById('wordInput').value = '';  // Clear input box
-        document.getElementById('wordInput').focus();  // Focus on the input box
-    }
-
-    function generateRandomWord(level) {
-        let wordLength = level < 5 ? 4 : level < 10 ? 5 : level < 15 ? 6 : 7;
-        let word = '';
-        for (let i = 0; i < wordLength; i++) {
-            word += alphabet[Math.floor(Math.random() * alphabet.length)];
-        }
-        return word;
-    }
-
-    document.getElementById('wordInput').addEventListener('input', function() {
-        if (this.value.toUpperCase() === currentWord) {
-            if (score >= 1000 && (score % 1000 === 0)) {
-                score += 100;
-            } else {
-                score += 50;
-            }
-
-            if (score > highestScore) {
-                highestScore = score;
-                localStorage.setItem("highestScore", highestScore);
-            }
-
-            rank = getRank(highestScore);
-
-            document.getElementById('scoreDisplay').textContent = `Score: ${score}`;
-            level++;
-            document.getElementById('levelDisplay').textContent = `Level: ${level}`;
-            updateWord();
-        }
-    });
-
-    // Allow only uppercase letters to be typed
-    document.getElementById('wordInput').addEventListener('keypress', function(event) {
-        if (event.key !== event.key.toUpperCase()) {
-            event.preventDefault();  // Prevent lowercase letters
-        }
-    });
-
-    // Allow particles to follow touch on mobile
-    let particles = [];
-    document.body.addEventListener("touchstart", function(event) {
-        createParticles(event);
-    });
-
-    document.body.addEventListener("click", function(event) {
-        createParticles(event);
-        var audio = document.getElementById('backgroundMusic');
-        audio.play();
-    });
-
-    function createParticles(event) {
-        for (let i = 0; i < 10; i++) {
-            let particle = document.createElement("div");
-            particle.classList.add("particle");
-            document.body.appendChild(particle);
-            let size = Math.random() * 10 + 5;
-            let x = event.clientX + (Math.random() - 0.5) * 100;
-            let y = event.clientY + (Math.random() - 0.5) * 100;
-            particle.style.width = size + "px";
-            particle.style.height = size + "px";
-            particle.style.left = x + "px";
-            particle.style.top = y + "px";
-            particle.style.setProperty('--x', Math.random() * 100 + "px");
-            particle.style.setProperty('--y', Math.random() * 100 + "px");
-            setTimeout(() => {
-                particle.remove();
-            }, 1000);
-        }
-    }
-
-</script>
+    <h1>Welcome to Random Video Chat</h1>
+    <div id="videoContainer">
+        <video id="userVideo" autoplay></video>
+        <video id="randomUserVideo" autoplay></video>
+    </div>
+    <button id="startCall">Start Call</button>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin-top: 50px;
+}
+
+#videoContainer {
+    display: flex;
+    justify-content: center;
+    margin: 20px;
+}
+
+video {
+    width: 45%;
+    margin: 10px;
+    border: 2px solid black;
+}
+// Initialize Firebase
+const firebaseConfig = {
+    apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
+    authDomain: "social-bite-skofficial.firebaseapp.com",
+    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
+    projectId: "social-bite-skofficial",
+    storageBucket: "social-bite-skofficial.appspot.com",
+    messagingSenderId: "239722707022",
+    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
+};
+const app = firebase.initializeApp(firebaseConfig);
+const firestore = firebase.firestore();
+const auth = firebase.auth();
+
+// Get references to DOM elements
+const startCallButton = document.getElementById("startCall");
+const userVideo = document.getElementById("userVideo");
+const randomUserVideo = document.getElementById("randomUserVideo");
+
+// WebRTC Configuration
+const peerConnectionConfig = {
+    iceServers: [{urls: 'stun:stun.l.google.com:19302'}]
+};
+
+let localStream;
+let peerConnection;
+
+// Function to get media stream
+async function getMediaStream() {
+    try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        userVideo.srcObject = localStream;
+    } catch (error) {
+        console.error("Error accessing media devices.", error);
+    }
+}
+
+// Function to connect to random user
+async function startCall() {
+    await getMediaStream();
+
+    // Create new peer connection for WebRTC
+    peerConnection = new RTCPeerConnection(peerConnectionConfig);
+    
+    // Add local stream to the peer connection
+    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+    // Listen for remote stream
+    peerConnection.ontrack = event => {
+        randomUserVideo.srcObject = event.streams[0];
+    };
+
+    // Create offer to connect to another user
+    const offer = await peerConnection.createOffer();
+    await peerConnection.setLocalDescription(offer);
+
+    // Save the offer to Firebase to send to the random user
+    firestore.collection("calls").add({
+        offer: offer,
+        user: auth.currentUser ? auth.currentUser.uid : "anonymous",
+        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+    });
+}
+
+// Listen for incoming offer and connect
+firestore.collection("calls").onSnapshot(snapshot => {
+    snapshot.forEach(doc => {
+        const offer = doc.data().offer;
+        if (offer && !peerConnection) {
+            peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+            peerConnection.createAnswer().then(answer => {
+                peerConnection.setLocalDescription(answer);
+                firestore.collection("calls").doc(doc.id).update({
+                    answer: answer
+                });
+            });
+        }
+    });
+});
+
+// Start the call when button is clicked
+startCallButton.addEventListener("click", startCall);
