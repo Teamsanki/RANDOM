@@ -33,15 +33,42 @@
       margin-top: 20px;
       font-size: 1.2rem;
     }
+    #login-container {
+      margin-top: 100px;
+    }
+    #lobby-container {
+      display: none;
+    }
   </style>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js"></script>
 </head>
 <body>
   <h1>Multiplayer Tic-Tac-Toe</h1>
-  <div id="status">Waiting for another player...</div>
-  <div class="board" id="board"></div>
+  
+  <!-- Splash Screen -->
+  <div id="splash-screen">
+    <h2>Welcome to the Game!</h2>
+    <p>Loading...</p>
+  </div>
+
+  <!-- Login Button -->
+  <div id="login-container">
+    <button id="google-login" onclick="googleLogin()">Login with Google</button>
+  </div>
+
+  <!-- Lobby Page -->
+  <div id="lobby-container">
+    <button onclick="createGame()">Create Game</button>
+    <input type="text" id="game-id-input" placeholder="Enter Game ID to Join">
+    <button onclick="joinGame()">Join Game</button>
+  </div>
+
+  <!-- Game Board -->
+  <div class="board" id="board" style="display: none;"></div>
+  <div id="status" style="display: none;"></div>
 
   <script>
     // Firebase Configuration
@@ -57,76 +84,128 @@
 
     // Initialize Firebase
     const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.auth();
     const db = firebase.database();
 
-    // Game Variables
-    const board = document.getElementById('board');
-    const status = document.getElementById('status');
-    const gameId = "multiplayer-tic-tac-toe";  // Unique game ID
-    let playerSymbol = '';
-    let isPlayerTurn = false;
+    // Splash Screen Timeout
+    setTimeout(() => {
+      document.getElementById('splash-screen').style.display = 'none';
+      document.getElementById('login-container').style.display = 'block';
+    }, 2000); // Show splash screen for 2 seconds
 
-    // Create Game Board
-    for (let i = 0; i < 9; i++) {
-      const cell = document.createElement('div');
-      cell.classList.add('cell');
-      cell.dataset.index = i;
-      cell.addEventListener('click', handleMove);
-      board.appendChild(cell);
+    // Google Login Function
+    function googleLogin() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      auth.signInWithPopup(provider).then((result) => {
+        const user = result.user;
+        console.log("Logged in as:", user.displayName, user.email);
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('lobby-container').style.display = 'block';
+      }).catch((error) => {
+        console.error("Error during login:", error.message);
+      });
     }
 
-    // Initialize Game State in Firebase
-    firebase.database().ref(gameId).once('value', (snapshot) => {
-      if (!snapshot.exists()) {
-        // Set initial state
-        firebase.database().ref(gameId).set({
-          board: Array(9).fill(''),
-          currentPlayer: 'X',
-          players: 1
-        });
-        playerSymbol = 'X';
-        isPlayerTurn = true;
-        status.textContent = "You are 'X'. Your turn!";
-      } else {
-        playerSymbol = 'O';
-        status.textContent = "You are 'O'. Wait for your turn.";
-      }
-    });
+    // Create Game Function
+    function createGame() {
+      const gameId = generateRandomId();
+      const userId = auth.currentUser.uid;
+      firebase.database().ref(gameId).set({
+        board: Array(9).fill(''),
+        currentPlayer: 'X',
+        players: 1,
+        player1: userId
+      }).then(() => {
+        document.getElementById('lobby-container').style.display = 'none';
+        startGame(gameId, userId, 'X');
+      });
+    }
 
-    // Listen for Game State Updates
-    firebase.database().ref(gameId).on('value', (snapshot) => {
-      const gameData = snapshot.val();
-      if (gameData) {
-        updateBoard(gameData.board);
-        isPlayerTurn = gameData.currentPlayer === playerSymbol;
-        status.textContent = isPlayerTurn
-          ? "Your turn!"
-          : "Waiting for opponent...";
-      }
-    });
+    // Join Game Function
+    function joinGame() {
+      const gameId = document.getElementById('game-id-input').value;
+      const userId = auth.currentUser.uid;
+      firebase.database().ref(gameId).once('value', (snapshot) => {
+        const gameData = snapshot.val();
+        if (gameData && gameData.players === 1) {
+          gameData.players = 2;
+          gameData.player2 = userId;
+          firebase.database().ref(gameId).set(gameData).then(() => {
+            document.getElementById('lobby-container').style.display = 'none';
+            startGame(gameId, userId, 'O');
+          });
+        } else {
+          alert('Game not available or full');
+        }
+      });
+    }
 
-    // Handle Player Move
-    function handleMove(e) {
-      const index = e.target.dataset.index;
-      if (isPlayerTurn) {
-        firebase.database().ref(gameId).once('value', (snapshot) => {
-          const gameData = snapshot.val();
-          if (gameData.board[index] === '') {
-            gameData.board[index] = playerSymbol;
-            gameData.currentPlayer = playerSymbol === 'X' ? 'O' : 'X';
-            firebase.database().ref(gameId).set(gameData);
+    // Start the Game
+    function startGame(gameId, userId, symbol) {
+      document.getElementById('board').style.display = 'grid';
+      document.getElementById('status').style.display = 'block';
+      let playerSymbol = symbol;
+      let isPlayerTurn = false;
+
+      // Game Initialization
+      firebase.database().ref(gameId).once('value', (snapshot) => {
+        const gameData = snapshot.val();
+        if (gameData.currentPlayer === playerSymbol) {
+          isPlayerTurn = true;
+          document.getElementById('status').textContent = "Your turn!";
+        } else {
+          document.getElementById('status').textContent = "Waiting for opponent...";
+        }
+      });
+
+      // Firebase listener for game updates
+      firebase.database().ref(gameId).on('value', (snapshot) => {
+        const gameData = snapshot.val();
+        if (gameData) {
+          updateBoard(gameData.board);
+          isPlayerTurn = gameData.currentPlayer === playerSymbol;
+          document.getElementById('status').textContent = isPlayerTurn ? "Your turn!" : "Waiting for opponent...";
+        }
+      });
+
+      // Game Move Handling
+      const cells = document.querySelectorAll('.cell');
+      cells.forEach((cell, index) => {
+        cell.addEventListener('click', function() {
+          if (isPlayerTurn) {
+            firebase.database().ref(gameId).once('value', (snapshot) => {
+              const gameData = snapshot.val();
+              if (gameData.board[index] === '') {
+                gameData.board[index] = playerSymbol;
+                gameData.currentPlayer = playerSymbol === 'X' ? 'O' : 'X';
+                firebase.database().ref(gameId).set(gameData);
+              }
+            });
           }
         });
-      }
+      });
     }
 
-    // Update Board UI
+    // Function to generate random user ID
+    function generateRandomId() {
+      return Math.random().toString(36).substr(2, 9);  // Generate a 9-character random string
+    }
+
+    // Update Game Board UI
     function updateBoard(boardState) {
       const cells = document.querySelectorAll('.cell');
       cells.forEach((cell, index) => {
         cell.textContent = boardState[index];
         cell.classList.toggle('taken', boardState[index] !== '');
       });
+    }
+
+    // Create Game Board UI
+    for (let i = 0; i < 9; i++) {
+      const cell = document.createElement('div');
+      cell.classList.add('cell');
+      cell.dataset.index = i;
+      board.appendChild(cell);
     }
   </script>
 </body>
