@@ -56,12 +56,11 @@
         // Initialize Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
-    authDomain: "social-bite-skofficial.firebaseapp.com",
-    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
-    projectId: "social-bite-skofficial",
-    storageBucket: "social-bite-skofficial.appspot.com",
-    messagingSenderId: "239722707022",
-    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
+authDomain: "social-bite-skofficial.firebaseapp.com",
+projectId: "social-bite-skofficial",
+storageBucket: "social-bite-skofficial.appspot.com",
+messagingSenderId: "239722707022",
+appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
         };
         const app = firebase.initializeApp(firebaseConfig);
         const firestore = firebase.firestore();
@@ -105,6 +104,15 @@
                 randomUserVideo.srcObject = event.streams[0];
             };
 
+            // Handle ICE candidates
+            peerConnection.onicecandidate = event => {
+                if (event.candidate) {
+                    firestore.collection("calls").add({
+                        candidate: event.candidate,
+                    });
+                }
+            };
+
             // Create offer to connect to another user
             const offer = await peerConnection.createOffer();
             await peerConnection.setLocalDescription(offer);
@@ -121,14 +129,23 @@
         firestore.collection("calls").onSnapshot(snapshot => {
             snapshot.forEach(doc => {
                 const offer = doc.data().offer;
+                const candidate = doc.data().candidate;
+                
                 if (offer && !peerConnection) {
+                    peerConnection = new RTCPeerConnection(peerConnectionConfig);
+
+                    // Add ICE candidate if exists
+                    if (candidate) {
+                        peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+                    }
+
                     peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
                     peerConnection.createAnswer().then(answer => {
                         peerConnection.setLocalDescription(answer);
                         firestore.collection("calls").doc(doc.id).update({
                             answer: answer
                         });
-                    });
+                    }).catch(error => console.error("Error creating answer:", error));
                 }
             });
         });
