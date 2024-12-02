@@ -17,7 +17,7 @@
       color: #2c3e50;
     }
 
-    #login-container, #lobby-container {
+    #login-container, #lobby-container, #game-container {
       display: none;
     }
 
@@ -75,13 +75,6 @@
       margin-top: 50px;
     }
 
-    #lobby-container input {
-      padding: 10px;
-      font-size: 16px;
-      margin-top: 10px;
-      width: 200px;
-    }
-
     #lobby-container button {
       background-color: #2ecc71;
       color: white;
@@ -96,6 +89,18 @@
     #lobby-container button:hover {
       background-color: #27ae60;
     }
+
+    #progress-bar {
+      width: 100%;
+      background-color: #ddd;
+      margin-top: 20px;
+    }
+
+    #progress-bar div {
+      height: 20px;
+      width: 0;
+      background-color: #2ecc71;
+    }
   </style>
   <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
@@ -104,11 +109,11 @@
 </head>
 <body>
   <h1>Multiplayer Tic-Tac-Toe</h1>
-  
-  <!-- Splash Screen -->
+
+  <!-- Splash Screen with Progress Bar -->
   <div id="splash-screen">
     <h2>Welcome to the Game!</h2>
-    <p>Loading...</p>
+    <div id="progress-bar"><div></div></div>
   </div>
 
   <!-- Login Container -->
@@ -118,14 +123,15 @@
 
   <!-- Lobby Page -->
   <div id="lobby-container">
-    <button onclick="createGame()">Create Game</button>
-    <input type="text" id="game-id-input" placeholder="Enter Game ID to Join">
-    <button onclick="joinGame()">Join Game</button>
+    <button onclick="joinBattle()">Join Battle</button>
   </div>
 
-  <!-- Game Board -->
-  <div class="board" id="board" style="display: none;"></div>
-  <div id="status" style="display: none;"></div>
+  <!-- Game Page -->
+  <div id="game-container">
+    <div class="board" id="board"></div>
+    <div id="status"></div>
+    <div id="reward" style="margin-top: 20px; color: #e74c3c; font-weight: bold;"></div>
+  </div>
 
   <script>
     // Firebase Configuration
@@ -144,11 +150,19 @@
     const auth = firebase.auth();
     const db = firebase.database();
 
-    // Splash Screen Timeout
-    setTimeout(() => {
-      document.getElementById('splash-screen').style.display = 'none';
-      document.getElementById('login-container').style.display = 'block';
-    }, 2000); // Show splash screen for 2 seconds
+    // Splash Screen Progress Bar Logic
+    let progress = 0;
+    let interval = setInterval(function() {
+      progress += 1;
+      document.querySelector("#progress-bar div").style.width = progress + "%";
+      if (progress === 100) {
+        clearInterval(interval);
+        setTimeout(() => {
+          document.getElementById('splash-screen').style.display = 'none';
+          document.getElementById('login-container').style.display = 'block';
+        }, 500);
+      }
+    }, 30); // Increase speed of progress bar
 
     // Google Login Function
     function googleLogin() {
@@ -163,48 +177,29 @@
       });
     }
 
-    // Create Game Function
-    function createGame() {
-      const gameId = generateRandomId();
+    // Join Battle (Lobby)
+    function joinBattle() {
+      // Game logic to join a battle
       const userId = auth.currentUser.uid;
+      // For simplicity, randomly select a game for this example (In production, you would find a random available opponent)
+      const gameId = generateRandomId();
       firebase.database().ref('games/' + gameId).set({
-        board: Array(9).fill(''),
-        currentPlayer: 'X',
         players: 1,
-        player1: userId
+        player1: userId,
+        currentPlayer: 'X',
+        board: Array(9).fill('')
       }).then(() => {
         document.getElementById('lobby-container').style.display = 'none';
         startGame(gameId, userId, 'X');
       });
     }
 
-    // Join Game Function
-    function joinGame() {
-      const gameId = document.getElementById('game-id-input').value;
-      const userId = auth.currentUser.uid;
-      firebase.database().ref('games/' + gameId).once('value', (snapshot) => {
-        const gameData = snapshot.val();
-        if (gameData && gameData.players === 1) {
-          gameData.players = 2;
-          gameData.player2 = userId;
-          firebase.database().ref('games/' + gameId).set(gameData).then(() => {
-            document.getElementById('lobby-container').style.display = 'none';
-            startGame(gameId, userId, 'O');
-          });
-        } else {
-          alert('Game not available or full');
-        }
-      });
-    }
-
-    // Start the Game
+    // Start Game
     function startGame(gameId, userId, symbol) {
-      document.getElementById('board').style.display = 'grid';
-      document.getElementById('status').style.display = 'block';
+      document.getElementById('game-container').style.display = 'block';
       let playerSymbol = symbol;
       let isPlayerTurn = false;
 
-      // Game Initialization
       firebase.database().ref('games/' + gameId).once('value', (snapshot) => {
         const gameData = snapshot.val();
         if (gameData.currentPlayer === playerSymbol) {
@@ -222,6 +217,7 @@
           updateBoard(gameData.board);
           isPlayerTurn = gameData.currentPlayer === playerSymbol;
           document.getElementById('status').textContent = isPlayerTurn ? "Your turn!" : "Waiting for opponent...";
+          checkWinner(gameData.board, gameId);
         }
       });
 
@@ -243,25 +239,44 @@
       });
     }
 
-    // Function to generate random user ID
-    function generateRandomId() {
-      return Math.random().toString(36).substr(2, 9);  // Generate a 9-character random string
-    }
-
     // Update Game Board UI
     function updateBoard(boardState) {
-      const cells = document.querySelectorAll('.cell');
-      cells.forEach((cell, index) => {
-        cell.textContent = boardState[index];
-        cell.classList.toggle('taken', boardState[index] !== '');
+      const board = document.getElementById('board');
+      board.innerHTML = '';  // Clear previous board
+      boardState.forEach((cell, index) => {
+        const cellDiv = document.createElement('div');
+        cellDiv.classList.add('cell');
+        cellDiv.textContent = cell;
+        board.appendChild(cellDiv);
       });
     }
 
-    // Create Game Board UI
-    for (let i = 0; i < 9; i++) {
-      const cell = document.createElement('div');
-      cell.classList.add('cell');
-      document.getElementById('board').appendChild(cell);
+    // Check for winner and reward logic
+    function checkWinner(board, gameId) {
+      const winningCombination = [
+        [0, 1, 2],
+        [3, 4, 5],
+        [6, 7, 8],
+        [0, 3, 6],
+        [1, 4, 7],
+        [2, 5, 8],
+        [0, 4, 8],
+        [2, 4, 6]
+      ];
+      
+      for (let combo of winningCombination) {
+        const [a, b, c] = combo;
+        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+          document.getElementById('reward').textContent = "Congratulations! You won 40 Rs Google Redeem Code!";
+          firebase.database().ref('games/' + gameId).remove();  // End game
+          return;
+        }
+      }
+    }
+
+    // Generate Random Game ID
+    function generateRandomId() {
+      return Math.random().toString(36).substr(2, 9);
     }
   </script>
 </body>
