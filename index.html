@@ -1,280 +1,298 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Multiplayer Tic-Tac-Toe</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      padding: 0;
-      background-color: #f0f0f0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Particles Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #111;
+            font-family: Arial, sans-serif;
+        }
 
-    h1 {
-      font-size: 3rem;
-      margin: 20px 0;
-      color: #2c3e50;
-    }
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background-color: rgba(0, 255, 255, 0.7);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: particleMovement 1s forwards;
+        }
 
-    .button {
-      background-color: #2980b9;
-      color: white;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 5px;
-      font-size: 16px;
-      cursor: pointer;
-    }
+        @keyframes particleMovement {
+            0% {
+                opacity: 1;
+                transform: scale(1) translate(0, 0);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(0.3) translate(var(--x), var(--y));
+            }
+        }
 
-    .button:hover {
-      background-color: #3498db;
-    }
+        .word {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            color: #00FFFF;
+            text-align: center;
+            font-weight: bold;
+            text-shadow: 0 0 5px #00FFFF, 0 0 10px #00FFFF;
+            user-select: none;
+        }
 
-    .loading-screen, #login-container, #lobby-container, #game-container {
-      display: none;
-      text-align: center;
-    }
+        .level {
+            position: absolute;
+            top: 40px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            color: #FF1493;
+            font-weight: bold;
+        }
 
-    /* Game Board */
-    .board {
-      display: grid;
-      grid-template-columns: repeat(3, 100px);
-      gap: 5px;
-      justify-content: center;
-      margin: 20px auto;
-    }
+        .score {
+            position: absolute;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            color: #FFFF00;
+            font-weight: bold;
+        }
 
-    .cell {
-      width: 100px;
-      height: 100px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border: 1px solid #333;
-      font-size: 2rem;
-      cursor: pointer;
-      background-color: #ecf0f1;
-      transition: background-color 0.2s;
-    }
+        .input-box {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 10px;
+            font-size: 20px;
+            text-align: center;
+            border: 2px solid #00FFFF;
+            background-color: #111;
+            color: #00FFFF;
+            border-radius: 5px;
+        }
 
-    .cell.taken {
-      pointer-events: none;
-      background-color: #bdc3c7;
-    }
+        .leaderboard {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #FF6347;
+            font-size: 18px;
+        }
 
-    #status {
-      margin-top: 20px;
-      font-size: 1.2rem;
-      color: #2980b9;
-    }
+        /* Popup styles */
+        .popup {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #FF6347;
+            padding: 20px;
+            border-radius: 10px;
+            display: none;
+            font-size: 20px;
+            text-align: center;
+            font-weight: bold;
+        }
 
-    /* Progress Bar */
-    #progress-bar {
-      width: 100%;
-      background-color: #ddd;
-      height: 20px;
-      margin-top: 20px;
-    }
+        .popup button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            background-color: #00FFFF;
+            border: none;
+            color: #111;
+            cursor: pointer;
+            border-radius: 5px;
+        }
 
-    #progress-bar div {
-      height: 100%;
-      width: 0;
-      background-color: #2ecc71;
-      transition: width 0.1s;
-    }
-  </style>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js"></script>
+        .popup input {
+            margin-top: 10px;
+            padding: 5px;
+            font-size: 18px;
+        }
+
+        /* Mobile responsiveness */
+        @media (max-width: 600px) {
+            .word {
+                font-size: 18px;
+            }
+            .level {
+                font-size: 16px;
+            }
+            .score {
+                font-size: 16px;
+            }
+            .input-box {
+                font-size: 18px;
+                width: 80%;
+            }
+            .leaderboard {
+                font-size: 14px;
+            }
+        }
+
+    </style>
 </head>
 <body>
-  <h1>Multiplayer Tic-Tac-Toe</h1>
 
-  <!-- Loading Screen with Progress Bar -->
-  <div class="loading-screen" id="loading-screen">
-    <h2>Game Loading...</h2>
-    <div id="progress-bar"><div></div></div>
-  </div>
+<!-- Background Music -->
+<audio id="backgroundMusic" autoplay loop>
+    <source src="your-music-file.mp3" type="audio/mp3">
+    Your browser does not support the audio element.
+</audio>
 
-  <!-- Login Container -->
-  <div id="login-container">
-    <button class="button" id="google-login" onclick="googleLogin()">Login with Google</button>
-  </div>
+<div class="word" id="wordDisplay">Get Ready!</div>
+<div class="level" id="levelDisplay">Level: 1</div>
+<div class="score" id="scoreDisplay">Score: 0</div>
+<input type="text" id="wordInput" class="input-box" placeholder="Type the word...">
+<div class="leaderboard" id="leaderboard"></div>
 
-  <!-- Lobby Page -->
-  <div id="lobby-container">
-    <button class="button" onclick="joinBattle()">Join Battle</button>
-  </div>
+<!-- Popup for entering name and age -->
+<div class="popup" id="infoPopup">
+    Enter your name and age to continue:<br>
+    Name: <input type="text" id="playerName"><br>
+    Age: <input type="text" id="playerAge"><br>
+    <button onclick="startGameWithInfo()">Start Game</button>
+</div>
 
-  <!-- Game Page -->
-  <div id="game-container">
-    <div class="board" id="board"></div>
-    <div id="status"></div>
-    <div id="reward" style="margin-top: 20px; color: #e74c3c; font-weight: bold;"></div>
-  </div>
+<script>
+    const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
+    let level = 1;
+    let currentWord = "";
+    let score = 0;
+    let username = "";
+    let userAge = "";
+    let highestScore = localStorage.getItem("highestScore") || 0;
+    let rank = getRank(highestScore);
 
-  <script>
-    // Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyAemwBwNix4TbWHA7vrh5ubQaRqEY8VWKk",
-    authDomain: "social-bite-skofficial.firebaseapp.com",
-    databaseURL: "https://social-bite-skofficial-default-rtdb.firebaseio.com",
-    projectId: "social-bite-skofficial",
-    storageBucket: "social-bite-skofficial.appspot.com",
-    messagingSenderId: "239722707022",
-    appId: "1:239722707022:web:57d9b173f2163e85be2b1f"
-    };
+    // Ask for user info to start the game
+    showInfoPopup();
 
-    // Initialize Firebase
-    const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
-    const db = firebase.database();
-
-    // Show Loading Screen with Progress Bar
-    let progress = 0;
-    let interval = setInterval(function() {
-      progress += 1;
-      document.querySelector("#progress-bar div").style.width = progress + "%";
-      if (progress === 100) {
-        clearInterval(interval);
-        setTimeout(() => {
-          document.getElementById('loading-screen').style.display = 'none';
-          document.getElementById('login-container').style.display = 'block';
-        }, 500);
-      }
-    }, 30); // Speed of progress bar
-
-    // Google Login Function
-    function googleLogin() {
-      const provider = new firebase.auth.GoogleAuthProvider();
-      auth.signInWithPopup(provider).then((result) => {
-        const user = result.user;
-        console.log("Logged in as:", user.displayName, user.email);
-        document.getElementById('login-container').style.display = 'none';
-        document.getElementById('lobby-container').style.display = 'block';
-      }).catch((error) => {
-        console.error("Error during login:", error.message);
-      });
+    function showInfoPopup() {
+        document.getElementById('infoPopup').style.display = 'block';
     }
 
-    // Join Battle (Lobby)
-    function joinBattle() {
-      // For simplicity, generate a random game ID
-      const userId = auth.currentUser.uid;
-      const gameId = generateRandomId();
-
-      firebase.database().ref('games/' + gameId).set({
-        players: 1,
-        player1: userId,
-        currentPlayer: 'X',
-        board: Array(9).fill('')
-      }).then(() => {
-        document.getElementById('lobby-container').style.display = 'none';
-        showGameLoadingScreen();
-        startGame(gameId, userId, 'X');
-      });
+    function startGameWithInfo() {
+        username = document.getElementById('playerName').value;
+        userAge = document.getElementById('playerAge').value;
+        localStorage.setItem("username", username);
+        localStorage.setItem("userAge", userAge);
+        startGame();
+        document.getElementById('infoPopup').style.display = 'none';
     }
 
-    // Game Loading Screen
-    function showGameLoadingScreen() {
-      document.getElementById('loading-screen').style.display = 'block';
-      setTimeout(() => {
-        document.getElementById('loading-screen').style.display = 'none';
-        document.getElementById('game-container').style.display = 'block';
-      }, 3000);  // Game loading screen for 3 seconds
+    function startGame() {
+        updateWord();
+        updateLeaderboard();
     }
 
-    // Start Game
-    function startGame(gameId, userId, symbol) {
-      let playerSymbol = symbol;
-      let isPlayerTurn = false;
+    function updateLeaderboard() {
+        document.getElementById('leaderboard').innerHTML = `
+            Highest Score: ${highestScore} (${rank})<br>
+            Your Rank: ${rank}<br>
+            Name: ${username}, Age: ${userAge}
+        `;
+    }
 
-      firebase.database().ref('games/' + gameId).once('value', (snapshot) => {
-        const gameData = snapshot.val();
-        if (gameData.currentPlayer === playerSymbol) {
-          isPlayerTurn = true;
-          document.getElementById('status').textContent = "Your turn!";
-        } else {
-          document.getElementById('status').textContent = "Waiting for opponent...";
+    function getRank(score) {
+        if (score >= 5000) return "nPRO";
+        if (score > 5000) return "Legend";
+        if (score >= 2500) return "Pro";
+        return "Noob";
+    }
+
+    function updateWord() {
+        currentWord = generateRandomWord(level);
+        document.getElementById('wordDisplay').textContent = currentWord;
+        document.getElementById('wordInput').value = '';  // Clear input box
+        document.getElementById('wordInput').focus();  // Focus on the input box
+    }
+
+    function generateRandomWord(level) {
+        let wordLength = level < 5 ? 4 : level < 10 ? 5 : level < 15 ? 6 : 7;
+        let word = '';
+        for (let i = 0; i < wordLength; i++) {
+            word += alphabet[Math.floor(Math.random() * alphabet.length)];
         }
-      });
+        return word;
+    }
 
-      // Firebase listener for game updates
-      firebase.database().ref('games/' + gameId).on('value', (snapshot) => {
-        const gameData = snapshot.val();
-        if (gameData) {
-          updateBoard(gameData.board);
-          isPlayerTurn = gameData.currentPlayer === playerSymbol;
-          document.getElementById('status').textContent = isPlayerTurn ? "Your turn!" : "Waiting for opponent...";
-          checkWinner(gameData.board, gameId);
+    document.getElementById('wordInput').addEventListener('input', function() {
+        if (this.value.toUpperCase() === currentWord) {
+            if (score >= 1000 && (score % 1000 === 0)) {
+                score += 100;
+            } else {
+                score += 50;
+            }
+
+            if (score > highestScore) {
+                highestScore = score;
+                localStorage.setItem("highestScore", highestScore);
+                showScorePopup();
+            }
+
+            rank = getRank(highestScore);
+
+            document.getElementById('scoreDisplay').textContent = `Score: ${score}`;
+            level++;
+            document.getElementById('levelDisplay').textContent = `Level: ${level}`;
+            updateWord();
         }
-      });
+    });
 
-      // Game Move Handling
-      const cells = document.querySelectorAll('.cell');
-      cells.forEach((cell, index) => {
-        cell.addEventListener('click', function() {
-          if (isPlayerTurn) {
-            firebase.database().ref('games/' + gameId).once('value', (snapshot) => {
-              const gameData = snapshot.val();
-              if (gameData.board[index] === '') {
-                gameData.board[index] = playerSymbol;
-                gameData.currentPlayer = playerSymbol === 'X' ? 'O' : 'X';
-                firebase.database().ref('games/' + gameId).set(gameData);
-              }
-            });
-          }
-        });
-      });
-    }
-
-    // Update Game Board UI
-    function updateBoard(boardState) {
-      const board = document.getElementById('board');
-      board.innerHTML = '';  // Clear previous board
-      boardState.forEach((cell, index) => {
-        const cellDiv = document.createElement('div');
-        cellDiv.classList.add('cell');
-        cellDiv.textContent = cell;
-        board.appendChild(cellDiv);
-      });
-    }
-
-    // Check for winner and reward logic
-    function checkWinner(board, gameId) {
-      const winningCombination = [
-        [0, 1, 2],
-        [3, 4, 5],
-        [6, 7, 8],
-        [0, 3, 6],
-        [1, 4, 7],
-        [2, 5, 8],
-        [0, 4, 8],
-        [2, 4, 6]
-      ];
-      
-      for (let combo of winningCombination) {
-        const [a, b, c] = combo;
-        if (board[a] && board[a] === board[b] && board[a] === board[c]) {
-          document.getElementById('reward').textContent = "Congratulations! You won a 40 Rs Google Redeem Code!";
-          firebase.database().ref('games/' + gameId).remove();  // End game
-          return;
+    // Allow only uppercase letters to be typed
+    document.getElementById('wordInput').addEventListener('keypress', function(event) {
+        if (event.key !== event.key.toUpperCase()) {
+            event.preventDefault();  // Prevent lowercase letters
         }
-      }
+    });
+
+    // Allow particles to follow touch on mobile
+    let particles = [];
+    document.body.addEventListener("touchstart", function(event) {
+        createParticles(event);
+    });
+
+    function createParticles(event) {
+        for (let i = 0; i < 10; i++) {
+            let particle = document.createElement("div");
+            particle.classList.add("particle");
+            let x = event.touches[0].clientX;
+            let y = event.touches[0].clientY;
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+            let angle = Math.random() * 360;
+            let distance = Math.random() * 50 + 50;
+            let xOffset = distance * Math.cos(angle);
+            let yOffset = distance * Math.sin(angle);
+            particle.style.setProperty("--x", `${xOffset}px`);
+            particle.style.setProperty("--y", `${yOffset}px`);
+            document.body.appendChild(particle);
+            particles.push(particle);
+
+            setTimeout(() => {
+                particle.remove();
+            }, 1000);
+        }
     }
 
-    // Generate Random Game ID
-    function generateRandomId() {
-      return Math.random().toString(36).substr(2, 9);
+    function showScorePopup() {
+        alert("You broke the highest score!");
+        localStorage.setItem("score", score);
+        localStorage.setItem("level", level);
     }
-  </script>
+</script>
+
 </body>
 </html>
